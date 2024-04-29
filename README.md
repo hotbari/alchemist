@@ -19,7 +19,7 @@ myproject/
         tests.py
         views.py
     app2/
-        ...
+        ...₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩
 ```
 
 
@@ -294,6 +294,15 @@ order_service = OrderService()
 order_view = OrderView(order_service)
 print(order_view.post('user123', 'product456'))
 ```
+
+
+
+## django 애플리케이션 로그 확인(?)
+- **Django Logging System**: 표준 Python logging 모듈을 사용하며, settings.py에서 설정을 통해 유연하게 로깅을 관리할 수 있습니다. 이 방법은 Django 프레임워크와 밀접하게 통합되어 있어서 Django 애플리케이션에서 널리 사용됩니다. 다양한 로그 레벨과 출력 형식을 지정할 수 있으며, 파일, 콘솔, 이메일 등 다양한 출력 대상을 설정할 수 있습니다. 기본적인 오류 추적 및 시스템 모니터링에 매우 유용합니다.
+
+- **Custom Logging Model**: 데이터베이스에 사용자 행동 로그를 남기기 위해 커스텀 모델을 생성하는 방식입니다. 이 방식은 프로젝트의 특정 요구사항(예: 사용자 행동 분석, 감사 로그)에 맞춰 매우 상세한 로깅을 할 수 있게 해줍니다. 하지만, 로그 데이터의 증가로 인한 데이터베이스의 부하를 고려해야 합니다.
+
+- **Third-Party Packages**: django-activity-stream, sentry와 같은 서드파티 패키지를 사용하는 방식입니다. 이 패키지들은 로깅을 위한 다양한 기능을 제공하며, 특히 sentry는 오류 로깅과 모니터링을 위해 매우 인기가 있습니다. sentry는 애플리케이션에서 발생하는 예외를 자동으로 캡처하고, 오류 분석과 알림 기능을 제공하여 신속한 대응을 가능하게 합니다.
 
 
 
