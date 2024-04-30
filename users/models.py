@@ -11,6 +11,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 # 사용자 정의 사용자 커스텀 모델
 class CustomUser(AbstractUser, TimeStampedModel):
     # 기존 필드(username, email, first_name, last_name 등)는 AbstractUser에서 상속받기 때문에 필드에는 보이지 않음.
+    # AbstractUser 필드에 존재하는 is_active 활용하여, 계정을 비활성화 가능 (유저 삭제 대신 False )
     
     # 성별필드에 choices 구현
     GENDER_CHOICES = (
@@ -26,13 +27,12 @@ class CustomUser(AbstractUser, TimeStampedModel):
             MaxValueValidator(2050) # 필드의 값이 설정된 최대값 이하
         ])
     
+    phone = models.CharField(max_length=20, unique=True)
     auth = models.CharField(max_length=20, blank=True, null=True)
-    club = models.ForeignKey(Club, on_delete=models.CASCADE, blank=True, null=True) # 사용자가 클럽에 속하지 않아도 되며, 사용자 입력 폼에서도 클럽 필드를 비워둘 수 있음
-    team = models.ForeignKey(Team, on_delete=models.CASCADE, blank=True, null=True) 
-    image_url = models.ForeignKey(ImageUrl, on_delete=models.CASCADE, blank=True, null=True) 
-    tier = models.ForeignKey(Tier, on_delete=models.CASCADE, blank=True, null=True)
+    club = models.ForeignKey(Club, on_delete=models.DO_NOTHING, blank=True, null=True) # 사용자가 클럽에 속하지 않아도 되며, 사용자 입력 폼에서도 클럽 필드를 비워둘 수 있음
+    team = models.ForeignKey(Team, on_delete=models.DO_NOTHING, blank=True, null=True) 
+    image_url = models.ForeignKey(ImageUrl, on_delete=models.DO_NOTHING, blank=True, null=True) 
+    tier = models.ForeignKey(Tier, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         db_table = 'users'
-
-

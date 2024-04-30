@@ -11,19 +11,29 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# environ 초기화
+env = environ.Env(
+    # 캐스팅 및 기본값 설정
+    DEBUG=(bool, False)
+)
+
+# .env 파일 읽기
+environ.Env.read_env(env_file="/Users/mac/Desktop/oz-tennis-project/.env")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%36bho54#&#nfy5cs$n_5e(_z#+fw1bk_j4n16^8)_mq6o2*lb'
+SECRET_KEY = env('SECRET_KEY')
+DEBUG = env('DEBUG')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
@@ -90,11 +100,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tennis_project',
-        'USER': 'root',
-        'PASSWORD': '0000',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST'),
+        'PORT': env('DB_PORT'),
     }
 }
 
