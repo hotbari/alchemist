@@ -9,15 +9,15 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 # CustomUserManager 정의
 class CustomUserManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, **extra_fields):
-        if not phone_number:
+    def create_user(self, phone, password=None, **extra_fields):
+        if not phone:
             raise ValueError('The Phone number must be set')
-        user = self.model(phone_number=phone_number, **extra_fields)
+        user = self.model(phone=phone, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, phone_number, password=None, **extra_fields):
+    def create_superuser(self, phone, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -26,7 +26,7 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.create_user(phone_number, password, **extra_fields)
+        return self.create_user(phone, password, **extra_fields)
 
 
 
@@ -45,7 +45,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
             MaxValueValidator(2050) # 필드의 값이 설정된 최대값 이하
         ])
     username = models.CharField(max_length=255) 
-    phone_number = models.CharField(max_length=255, unique=True)
+    phone = models.CharField(max_length=255, unique=True)
     auth = models.CharField(max_length=255, blank=True, null=True)
     club = models.ForeignKey(Club, on_delete=models.DO_NOTHING, blank=True, null=True) # 사용자가 클럽에 속하지 않아도 되며, 사용자 입력 폼에서도 클럽 필드를 비워둘 수 있음
     team = models.ForeignKey(Team, on_delete=models.DO_NOTHING, blank=True, null=True) 
@@ -56,12 +56,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     
     objects = CustomUserManager()
     
-    USERNAME_FIELD = 'phone_number' # USERNAME_FIELD 로 지정된 값을 흔히 말하는 로그인 ID로 사용됨.
+    USERNAME_FIELD = 'phone' # USERNAME_FIELD 로 지정된 값을 흔히 말하는 로그인 ID로 사용됨.
     
     REQUIRED_FIELDS = [] # 슈퍼유저 생성시 요구되는 필드 목록 설정
     
     def __str__(self):
-        return self.phone_number
+        return self.phone
     
 
     class Meta:

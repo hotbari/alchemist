@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
-from .serializers import UserCreateSerializer
+from .serializers import UserCreateSerializer, CustomTokenObtainPairSerializer
 
 class CreateUserView(APIView):
     def post(self, request):
@@ -21,3 +21,14 @@ class CreateUserView(APIView):
             'message': '입력값을 확인해주세요',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class LoginView(APIView):
+    def post(self, request):
+        serializer = CustomTokenObtainPairSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
