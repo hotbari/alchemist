@@ -42,6 +42,7 @@ class LoginView(APIView):
                 'refreshToken': validated_data.get('refresh'), 
                 # 'user': validated_data.get('user'),  # 사용자 정보 조회 (user_id, username, phone 등등..)
             }
+            
 
             # JsonResponse로 응답 생성
             response = JsonResponse(response_data, status=status.HTTP_200_OK)
@@ -60,3 +61,5 @@ class LoginView(APIView):
                'message': '로그인 정보가 올바르지 않습니다.',
                 'errors': serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
+                
+       
