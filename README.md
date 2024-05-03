@@ -1,3 +1,54 @@
+# 프로젝트 가이드
+- 프로젝트 처음시작 설정
+
+
+- poetry 설치하기
+```python
+poetry init
+poetry shell # 가상환경 실행
+```
+
+
+
+- 파이썬 인터프리터로 실행하는 명령어
+- mac
+```python
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+-windows
+```python
+curl -sSL https://install.python-poetry.org | python -
+```
+- 설치완료 후 poetry --version 으로 설치 확인하기
+
+- poetry 가상환경에 패키지 설치
+```python
+poetry update
+```
+
+- 장고 마이그레이션 진행
+```python
+python manage.py makemigrations
+python manage.py migrate
+```
+
+- 장고 슈퍼유저 생성
+```python
+python manage.py createsuperuser
+```
+
+
+
+
+
+
+
+
+
+
+
+
 ## 기본 Django 프로젝트 구조
 - Django 프로젝트를 생성하면 기본적으로 다음과 같은 구조를 갖습니다:
 
