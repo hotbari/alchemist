@@ -22,9 +22,7 @@ from users.views import CreateUserView, LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # 기존 TokenObtainPairView 대신 CustomTokenObtainPairView 사용
-    # path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/auth/signup/', CreateUserView.as_view(), name='signup'),
     path('api/v1/auth/signin/', LoginView.as_view(), name='login'),
 ]

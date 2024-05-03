@@ -13,7 +13,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ('phone', 'password', 'username', 'gender', 'club')
+        fields = ('phone', 'password', 'username', 'birth', 'gender', 'club')
 
     def validate_phone(self, value):
         user = User.objects.filter(phone=value)
@@ -27,6 +27,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             phone=validated_data['phone'],
             password=validated_data['password'],
             username=validated_data['username'],
+            birth=validated_data.get('birth'),
             gender=validated_data.get('gender'),
             club=validated_data.get('club', None) # club은 회원가입때 필수사항은 아님.
         )
@@ -35,18 +36,15 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 # 로그인 부분 serializer
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    # 이 부분은 실제 'User' 모델에서 사용하는 전화번호 필드의 이름으로 설정해야 합니다.
-    # 예를 들어, 모델에서 전화번호 필드를 'phone' 이라고 정의했다면, 여기에 'phone'을 사용하면 됩니다.
     username_field = 'phone'
 
     def validate(self, attrs):
-        # 'username' 대신 'phone'을 사용
+        # 'username' 대신 'phone'을 사용하여 인증
         authenticate_kwargs = {
-            'phone': attrs.get(self.username_field),  # 'username' 대신 'phone' 필드를 사용하여 인증
+            'phone': attrs.get(self.username_field),
             'password': attrs.get('password'),
         }
         
-        # 인증 시 'phone'과 'password'를 사용합니다.
         self.user = authenticate(**authenticate_kwargs)
         if self.user is None or not self.user.is_active:
             raise serializers.ValidationError('로그인에 실패하였습니다. 전화번호와 비밀번호를 확인해 주세요.')
@@ -54,7 +52,24 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # 토큰 발급
         data = super().validate(attrs)
         refresh = self.get_token(self.user)
-        data['refresh'] = str(refresh)
         data['access'] = str(refresh.access_token)
+        data['refresh'] = str(refresh)
         
+        # # 사용자 정보를 JSON 형태로 추가
+        # user_info = {
+        #     'id': self.user.id,
+        #     'phone': self.user.phone,
+        #     'username': self.user.username,
+        #     'image_url': self.user.image_url.url if self.user.image_url else None,
+        # }
+        
+        # # user가 클럽이 존재한다면 클럽 정보도 추가.
+        # if hasattr(self.user, 'club') and self.user.club:
+        #     user_info['club'] = {
+        #         'id': self.user.club.id,
+        #         'name': self.user.club.name
+        #     }
+        
+        # data['user'] = user_info  # user_id(PK) 에 사용자 데이터를 추가했음.
+
         return data

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import environ
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,7 +36,7 @@ DEBUG = env('DEBUG')
 
 
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
 
 
 # Application definition
@@ -174,4 +175,8 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'TOKEN_OBTAIN_SERIALIZER': 'users.serializers.path.CustomTokenObtainPairSerializer',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 엑세스 토큰의 만료 기간을 30분으로 설정
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }

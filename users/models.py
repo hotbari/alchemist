@@ -39,7 +39,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     )
     gender = models.CharField(max_length=255, choices=GENDER_CHOICES)
     birth = models.IntegerField(
-        default = 1980, #필드 기본 값
         validators=[
             MinValueValidator(1900), # 필드의 값이 설정된 최소값 이상
             MaxValueValidator(2050) # 필드의 값이 설정된 최대값 이하
