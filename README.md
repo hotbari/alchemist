@@ -1,5 +1,6 @@
 # 프로젝트 가이드
-- 프로젝트 처음시작 설정
+
+### 프로젝트 처음시작 설정
 
 
 - poetry 설치하기
@@ -10,13 +11,13 @@ poetry shell # 가상환경 실행
 
 
 
-- 파이썬 인터프리터로 실행하는 명령어
+### 파이썬 ('.venv':poetry) 인터프리터로 실행하는 명령어
 - mac
 ```python
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
--windows
+- windows
 ```python
 curl -sSL https://install.python-poetry.org | python -
 ```
