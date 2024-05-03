@@ -175,8 +175,9 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'TOKEN_OBTAIN_SERIALIZER': 'users.serializers.path.CustomTokenObtainPairSerializer',
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 엑세스 토큰의 만료 기간을 30분으로 설정
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
 }
