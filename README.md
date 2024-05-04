@@ -2,7 +2,7 @@
 
 ## 프로젝트 처음시작 설정  
 
-1. 가상환경 설치하기(poetry)
+#### 1. 가상환경 설치하기(poetry)
   - mac:  
   ```bash
   curl -sSL https://install.python-poetry.org | python3 -
@@ -17,7 +17,9 @@
   poetry update
   ```
 
-2. 장고 명령어
+<br>
+
+#### 2. 장고 명령어
 - 서버 실행
   ```bash
   python manage.py runserver
@@ -34,7 +36,10 @@
   ```bash
   python manage.py createsuperuser
   ```
-3. 데이터베이스
+<br>
+
+
+#### 3. 데이터베이스
 - 장고는 기본적으로 sqlite을 사용하고 있어서 데이터베이스에 따로 연결을 설정을 해주지 않아도 된다. 테스트 단계에서는 sqlite를 사용하여 빠른 개발이 가능하고 서비스로 제공할 때 운영 환경에 따라 데이터베이스를 연결해주면 된다.
 ```py
 # settings.py
@@ -45,6 +50,8 @@ DATABASES = {
     }
 }
 ```
+<br>
+
 
 # APIs  
 
@@ -55,15 +62,16 @@ DATABASES = {
   - `api/v1/auth/signup/` : 회원가입 시 access token과 refresh token 쿠키에 설정
 
 - 로그인
-  -`api/v1/auth/signin/` : 회원가입 시 access token과 refresh token 쿠키에 설정
+  - `api/v1/auth/signin/` : 회원가입 시 access token과 refresh token 쿠키에 설정
 
 
 
 
 
-
-
-
+<br>
+<br>
+<br>
+---
 
 
 
@@ -89,7 +97,7 @@ myproject/
         tests.py
         views.py
     app2/
-        ...₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩
+        ...
 ```
 
 
