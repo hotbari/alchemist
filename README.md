@@ -12,6 +12,14 @@
   curl -sSL https://install.python-poetry.org | python -
   ```
   - 설치완료 후 `poetry --version` 으로 설치된 poetry 확인
+  - poetry 가상환경 실행
+  ```bash
+  poetry shell
+  ```
+  - poetry 가상환경 비활성화
+  ```bash
+  deactivate
+  ```
   - poetry 가상환경에 패키지 설치 
   ```bash
   poetry update
