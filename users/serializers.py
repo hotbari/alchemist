@@ -3,10 +3,6 @@ from django.contrib.auth import get_user_model , authenticate
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from .models import Club
-from django.contrib.auth.models import update_last_login
-from config.settings import SIMPLE_JWT
-# from config.settings import api_settings
-
 
 
 User = get_user_model()
@@ -41,10 +37,19 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-## 로그인 부분 serializer ##
+# 로그인 부분 serializer ##
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'phone'
+    
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['phone'] = user.phone
+        
+        return token
 
     def validate(self, attrs):
         # 'username' 대신 'phone'을 사용하여 인증
@@ -63,8 +68,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['access'] = str(refresh.access_token)
         data['refresh'] = str(refresh)
         
-        if SIMPLE_JWT['UPDATE_LAST_LOGIN'] is True:
-            update_last_login(None, self.user)
         
         return data
     
