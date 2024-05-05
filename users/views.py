@@ -43,7 +43,7 @@ class LoginView(TokenObtainPairView):
         res = super().post(request, *args, **kwargs)
         
         response = Response({
-            "detail": "로그인 되었습니다."
+            "message": "로그인 되었습니다."
             }, status= status.HTTP_200_OK)
         
         response.set_cookie("refresh", res.data.get('refresh', None), httponly= True)

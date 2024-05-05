@@ -64,6 +64,9 @@ DATABASES = {
 - 로그인
   - `api/v1/auth/signin/` : 회원가입 시 access token과 refresh token 쿠키에 설정
 
+- 로그아웃
+  - `api/v1/auth/logout/` : 회원가입 시 access token과 refresh token 쿠키에 설정
+
 
 
 
