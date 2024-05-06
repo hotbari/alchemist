@@ -4,10 +4,13 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from .models import Club
 
+
 User = get_user_model()
 
-# 회원가입 부분 serializer
-class UserCreateSerializer(serializers.ModelSerializer):
+
+## 회원가입 부분 serializer ##
+
+class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     club = serializers.PrimaryKeyRelatedField(queryset=Club.objects.all(), required=False)
     
@@ -34,9 +37,19 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
 
 
-# 로그인 부분 serializer
+# 로그인 부분 serializer ##
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'phone'
+    
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['phone'] = user.phone
+        
+        return token
 
     def validate(self, attrs):
         # 'username' 대신 'phone'을 사용하여 인증
@@ -55,21 +68,5 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['access'] = str(refresh.access_token)
         data['refresh'] = str(refresh)
         
-        # # 사용자 정보를 JSON 형태로 추가
-        # user_info = {
-        #     'id': self.user.id,
-        #     'phone': self.user.phone,
-        #     'username': self.user.username,
-        #     'image_url': self.user.image_url.url if self.user.image_url else None,
-        # }
         
-        # # user가 클럽이 존재한다면 클럽 정보도 추가.
-        # if hasattr(self.user, 'club') and self.user.club:
-        #     user_info['club'] = {
-        #         'id': self.user.club.id,
-        #         'name': self.user.club.name
-        #     }
-        
-        # data['user'] = user_info  # user_id(PK) 에 사용자 데이터를 추가했음.
-
         return data

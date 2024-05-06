@@ -4,7 +4,7 @@
 
 
 - poetry 설치하기
-```python
+```zsh
 poetry init
 poetry shell # 가상환경 실행
 ```
@@ -13,35 +13,36 @@ poetry shell # 가상환경 실행
 
 ### 파이썬 ('.venv':poetry) 인터프리터로 실행하는 명령어
 - mac
-```python
+```zsh
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 - windows
-```python
+```zsh
 curl -sSL https://install.python-poetry.org | python -
 ```
 - 설치완료 후 poetry --version 으로 설치 확인하기
 
 - poetry 가상환경에 패키지 설치
-```python
+```zsh
 poetry update
 ```
 
 - 장고 마이그레이션 진행
-```python
+```zsh
 python manage.py makemigrations
 python manage.py migrate
 ```
 
 - 장고 슈퍼유저 생성
-```python
+```zsh
 python manage.py createsuperuser
 ```
 
-
-
-
+- django 서버 실행
+```zsh
+python manage.py runserver
+```
 
 
 
