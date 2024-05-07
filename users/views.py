@@ -18,9 +18,10 @@ class CreateUserView(APIView):
             token = CustomTokenObtainPairSerializer.get_token(user)
             response = Response({
                 'message': '회원가입이 완료 되었습니다',
+                'access': str(token.access_token)
             }, status=status.HTTP_201_CREATED)
             
-            response.set_cookie('access',value=str(token.access_token), httponly= True)
+            
             response.set_cookie('refresh',value=str(token), httponly= True)
             
             return response
@@ -43,11 +44,12 @@ class LoginView(TokenObtainPairView):
         res = super().post(request, *args, **kwargs)
         
         response = Response({
-            "message": "로그인 되었습니다."
+            "message": "확인되었습니다.",
+            "access": str(res.data.get('access', None))
             }, status= status.HTTP_200_OK)
         
         response.set_cookie("refresh", res.data.get('refresh', None), httponly= True)
-        response.set_cookie("access", res.data.get('access', None), httponly= True)
+        # response.set_cookie("access", res.data.get('access', None), httponly= True)
 
         return response     
     
@@ -63,7 +65,42 @@ class LogoutView(APIView):
             'detail': '로그아웃되었습니다'
             }, status=status.HTTP_200_OK)
         
-        response.delete_cookie('access')
         response.delete_cookie('refresh')
         
         return response
+
+
+
+## 액세스 토큰 리프레시 ##
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+
+class RefreshAccessTokenView(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get('refresh')
+
+        if refresh_token is None:
+            return Response({"error": "리프레시 토큰이 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = RefreshToken(refresh_token)
+            new_access_token = str(token.access_token)
+
+            # 필요하다면 새 리프레시 토큰도 생성하여 반환할 수 있습니다. 
+            # new_refresh_token = str(token)
+
+            response = Response()
+            response.data = {
+                'access': new_access_token,
+                # 'refresh': new_refresh_token,
+            }
+
+            return response
+        except Exception as e:
+            return Response({"error": "인증되지 않은 리프레시 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
