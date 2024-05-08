@@ -214,3 +214,6 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://alchemistapi.watcher.team',
+]
