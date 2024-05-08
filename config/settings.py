@@ -4,6 +4,7 @@ import environ
 from datetime import timedelta
 import os
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,7 +31,6 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 
 
-
 ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
 
 
@@ -53,14 +53,14 @@ CUSTOM_APPS = [
     'tier.apps.TierConfig',
     'image_url.apps.ImageUrlConfig',
     'matchtype.apps.MatchTypeConfig',
-    'coach.apps.CoachConfig',
-    'core.apps.CoreConfig',
-    'competition.apps.CompetitionConfig',
 ]
 
 
-
 SYSTEM_APPS = [
+    'corsheaders',
+    'core.apps.CoreConfig',
+    'coach.apps.CoachConfig',
+    'competition.apps.CompetitionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -69,6 +69,7 @@ SYSTEM_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
@@ -81,6 +82,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # <- 가능한 높게 위치시켜야 한다.
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -113,7 +115,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 
 # Password validation
@@ -161,8 +162,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-# Auth
-
+# Auth 기본값 설정
 AUTH_USER_MODEL = 'users.CustomUser'
 
 
@@ -189,3 +189,28 @@ SIMPLE_JWT = {
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     'SIGNING_KEY': env('SIMPLE_JWT_SIGNING_KEY', default=None) or SECRET_KEY,
 }
+
+
+CORS_ORIGIN_ALLOW_ALL = True # <- 모든 호스트 허용
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+

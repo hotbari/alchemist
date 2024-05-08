@@ -1,53 +1,87 @@
-# 프로젝트 가이드
+### Alchemist 테니스 앱 프로젝트
 
-### 프로젝트 처음시작 설정
+## 프로젝트 처음시작 설정  
+
+#### 1. 가상환경 설치하기(poetry)
+  - mac:  
+  ```bash
+  curl -sSL https://install.python-poetry.org | python3 -
+  ```
+  - windows  
+  ```bash
+  curl -sSL https://install.python-poetry.org | python -
+  ```
+  - 설치완료 후 `poetry --version` 으로 설치된 poetry 확인
+  - poetry 가상환경 실행
+  ```bash
+  poetry shell
+  ```
+  - poetry 가상환경 비활성화
+  ```bash
+  deactivate
+  ```
+  - poetry 가상환경에 패키지 설치 
+  ```bash
+  poetry update
+  ```
+
+<br>
+
+#### 2. 장고 명령어
+- 서버 실행
+  ```bash
+  python manage.py runserver
+  ```
+- 데이터베이스 마이그레이션 파일 생성
+  ```bash
+  python manage.py makemigrations
+  ```
+- 데이터베이스 마이그레이션 적용
+  ```bash
+  python manage.py migrate
+  ```
+- 장고 슈퍼유저 생성  
+  ```bash
+  python manage.py createsuperuser
+  ```
+<br>
 
 
-- poetry 설치하기
-```zsh
-poetry init
-poetry shell # 가상환경 실행
+#### 3. 데이터베이스
+- 장고는 기본적으로 sqlite을 사용하고 있어서 데이터베이스에 따로 연결을 설정을 해주지 않아도 된다. 테스트 단계에서는 sqlite를 사용하여 빠른 개발이 가능하고 서비스로 제공할 때 운영 환경에 따라 데이터베이스를 연결해주면 된다.
+```py
+# settings.py
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3', # 'django.db.backends.sqlite3', 'django.db.backends.postgresql', 'django.db.backends.mysql', or 'django.db.backends.oracle'
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 ```
+<br>
 
 
+# APIs  
 
-### 파이썬 ('.venv':poetry) 인터프리터로 실행하는 명령어
-- mac
-```zsh
-curl -sSL https://install.python-poetry.org | python3 -
-```
+### 1. 회원가입 / 로그인
+장고에서 제공해주는 기본 URL: 127.0.0.1:8000/
 
-- windows
-```zsh
-curl -sSL https://install.python-poetry.org | python -
-```
-- 설치완료 후 poetry --version 으로 설치 확인하기
+- 회원가입
+  - `api/v1/auth/signup/` : 회원가입 시 access token과 refresh token 쿠키에 설정
 
-- poetry 가상환경에 패키지 설치
-```zsh
-poetry update
-```
+- 로그인
+  - `api/v1/auth/signin/` : 회원가입 시 access token과 refresh token 쿠키에 설정
 
-- 장고 마이그레이션 진행
-```zsh
-python manage.py makemigrations
-python manage.py migrate
-```
-
-- 장고 슈퍼유저 생성
-```zsh
-python manage.py createsuperuser
-```
-
-- django 서버 실행
-```zsh
-python manage.py runserver
-```
+- 로그아웃
+  - `api/v1/auth/logout/` : 회원가입 시 access token과 refresh token 쿠키에 설정
 
 
 
 
 
+<br>
+<br>
+<br>
 
 
 
@@ -72,7 +106,6 @@ myproject/
         tests.py
         views.py
     app2/
-        ...₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩₩
 ```
 
 
@@ -356,8 +389,4 @@ print(order_view.post('user123', 'product456'))
 - **Custom Logging Model**: 데이터베이스에 사용자 행동 로그를 남기기 위해 커스텀 모델을 생성하는 방식입니다. 이 방식은 프로젝트의 특정 요구사항(예: 사용자 행동 분석, 감사 로그)에 맞춰 매우 상세한 로깅을 할 수 있게 해줍니다. 하지만, 로그 데이터의 증가로 인한 데이터베이스의 부하를 고려해야 합니다.
 
 - **Third-Party Packages**: django-activity-stream, sentry와 같은 서드파티 패키지를 사용하는 방식입니다. 이 패키지들은 로깅을 위한 다양한 기능을 제공하며, 특히 sentry는 오류 로깅과 모니터링을 위해 매우 인기가 있습니다. sentry는 애플리케이션에서 발생하는 예외를 자동으로 캡처하고, 오류 분석과 알림 기능을 제공하여 신속한 대응을 가능하게 합니다.
-
-
-
-
 

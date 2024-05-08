@@ -27,6 +27,7 @@ class Coach(models.Model):
     user = models.ForeignKey('Users', models.DO_NOTHING)
 
     class Meta:
+        managed = False
         db_table = 'coach'
 
 
@@ -34,8 +35,8 @@ class Competition(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30, blank=True, null=True)
     status = models.CharField(max_length=6, blank=True, null=True)
-    start_date = models.DateTimeField(db_column='startDate', blank=True, null=True)
-    end_date = models.DateTimeField(db_column='endDate', blank=True, null=True)  
+    startdate = models.DateTimeField(db_column='startDate', blank=True, null=True)  # Field name made lowercase.
+    enddate = models.DateTimeField(db_column='endDate', blank=True, null=True)  # Field name made lowercase.
     round = models.IntegerField(blank=True, null=True)
     description = models.CharField(max_length=100, blank=True, null=True)
     rule = models.TextField(blank=True, null=True)

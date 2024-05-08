@@ -21,6 +21,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('phone', 'password', 'username', 'birth', 'gender', 'club', 'image_file', 'image_url')
+        
 
     def validate_phone(self, value):
         user = User.objects.filter(phone=value)
@@ -29,6 +30,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return value
     
     def create(self, validated_data):
+        # 2개의 비밀번호 검증은 프론트에서 구현
         image_data = validated_data.pop('image_file', None) 
         user = User.objects.create_user(
             phone=validated_data['phone'],
@@ -36,7 +38,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             birth=validated_data.get('birth'),
             gender=validated_data.get('gender'),
-            club=validated_data.get('club', None)
+            club=validated_data.get('club', None) # club은 회원가입때 필수사항은 아님.
         )
         
         if image_data:
@@ -88,3 +90,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         
         
         return data
+    
+        # # 사용자 정보를 JSON 형태로 추가
+        # user_info = {
+        #     'id': self.user.id,
+        #     'phone': self.user.phone,
+        #     'username': self.user.username,
+        #     'image_url': self.user.image_url.url if self.user.image_url else None,
+        # }
+        
+        # # user가 클럽이 존재한다면 클럽 정보도 추가.
+        # if hasattr(self.user, 'club') and self.user.club:
+        #     user_info['club'] = {
+        #         'id': self.user.club.id,
+        #         'name': self.user.club.name
+        #     }
+        
+        # data['user'] = user_info  # user_id(PK) 에 사용자 데이터를 추가했음.
