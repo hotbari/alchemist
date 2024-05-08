@@ -3,23 +3,17 @@ from .models import Club
 from users.models import CustomUser
 from coach.models import Coach
 from team.models import Team
-from image_url.models import ImageUrl
-from image_url.serializers import ClubImageSerializer
+from image_url.serializers import ImageUrlSerializer
+
 
 
 # 전체 클럽 목록 조회 serializer
 class ClubListSerializer(serializers.ModelSerializer):
-    # SerializerMethodField: 복잡한 데이터를 직접 계산하거나 다른 소스에서 가져온 데이터를 직렬화에 포함가능함
-    club_image = serializers.SerializerMethodField()
+    image_url = ImageUrlSerializer(read_only=True)  # ImageUrl 모델에 대한 시리얼라이저를 사용
 
     class Meta:
         model = Club
-        fields = ('id', 'name', 'address', 'club_image')
-
-    def get_club_image(self, obj):
-        # 현재 클럽과 연결된 이미지 중 image_type이 'club'인 이미지만 필터링
-        image = ImageUrl.objects.filter(club=obj, image_type='club')
-        return ClubImageSerializer(image, many=True).data  # ClubImageSerializer를 사용하여 이미지 시리얼라이징
+        fields = ['id', 'name', 'address', 'image_url']
 
 
 
@@ -27,6 +21,7 @@ class ClubListSerializer(serializers.ModelSerializer):
 
 # 클럽 상세정보를 불러오기 위한 Nested Serializer (Nested Serializer : 중첩된 관계를 가진 모델 간의 상호 작용을 지원하는 기능)
 class CustomUserSerializer(serializers.ModelSerializer):
+    image_url = ImageUrlSerializer(read_only=True)
     class Meta:
         model = CustomUser
         fields = ('id', 'username', '유저 이미지') # 이미지 모델에서 serializser 코드 생성 해줘야함

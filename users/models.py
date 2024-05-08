@@ -51,8 +51,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     tier = models.ForeignKey(Tier, on_delete=models.DO_NOTHING, blank=True, null=True)
     is_staff = models.BooleanField(default=False) # 관리자 페이지 접속 가능하게 하는 staff 기능
     is_active = models.BooleanField(default=True) # is_active 활용하여, 계정을 비활성화 가능 (유저 삭제 대신 False)
-    
+    image_url = models.ForeignKey('image_url.ImageUrl', on_delete=models.DO_NOTHING, blank=True, null=True)
     objects = CustomUserManager()
+    
     
     USERNAME_FIELD = 'phone' # USERNAME_FIELD 로 지정된 값을 흔히 말하는 로그인 ID로 사용됨.
     

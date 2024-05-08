@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from .models import ImageUrl
 
-class ClubImageSerializer(serializers.ModelSerializer):
+
+
+class ImageUrlSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageUrl
-        fields = ('image',)
+        fields = ['id', 'image_url', 'extension', 'size']

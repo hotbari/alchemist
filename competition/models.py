@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Competition(models.Model):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30, blank=True, null=True)
@@ -19,6 +20,7 @@ class Competition(models.Model):
     bank_account_name = models.CharField(db_column='bankAccountName', max_length=30, blank=True, null=True)  
     site_link = models.TextField(db_column='siteLink', blank=True, null=True)  
     feedback = models.CharField(max_length=255, blank=True, null=True)
+    image_url = models.ForeignKey('image_url.ImageUrl', on_delete=models.DO_NOTHING, blank=True, null=True)
     # match_type = models.ForeignKey('MatchType', models.DO_NOTHING)
     # tier = models.ForeignKey('Tier', models.DO_NOTHING)
 

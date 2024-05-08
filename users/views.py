@@ -1,26 +1,32 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CreateUserSerializer, CustomTokenObtainPairSerializer
 
 
 
-# 회원가입 ##
+# 회원가입 view ##
 
-from .serializers import UserSerializer, CustomTokenObtainPairSerializer
 
 class CreateUserView(APIView):
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
+    parser_classes = (MultiPartParser, FormParser)  # 멀티파트 데이터를 처리할 수 있도록 파서 클래스 추가
+
+    def post(self, request, *args, **kwargs):
+        serializer = CreateUserSerializer(data=request.data)  # request.data를 직접 사용
+        
         if serializer.is_valid():
             user = serializer.save()
-            token = CustomTokenObtainPairSerializer.get_token(user)
+            token = CustomTokenObtainPairSerializer.get_token(user)  # 사용자를 위한 토큰 생성
             response = Response({
                 'message': '회원가입이 완료 되었습니다',
             }, status=status.HTTP_201_CREATED)
             
-            response.set_cookie('access',value=str(token.access_token), httponly= True)
-            response.set_cookie('refresh',value=str(token), httponly= True)
+            # 생성된 토큰을 쿠키에 설정
+            response.set_cookie('access', value=str(token.access_token), httponly=True)
+            response.set_cookie('refresh', value=str(token), httponly=True)
             
             return response
 
@@ -34,7 +40,6 @@ class CreateUserView(APIView):
 
 # 로그인 ##
 
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 class LoginView(TokenObtainPairView):
     def post(self, request: Request, *args, **kwargs) -> Response:
