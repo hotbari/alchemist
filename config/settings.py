@@ -1,6 +1,9 @@
+
 from pathlib import Path
 import environ
 from datetime import timedelta
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -9,38 +12,55 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # environ 초기화
 env = environ.Env(
     # 캐스팅 및 기본값 설정
-    DEBUG=(bool, False)
+    DEBUG=(bool, True),
+    SECRET_KEY=(str, 'your-default-secret-key'),  # 기본값 예시
+    AWS_ACCESS_KEY_ID=(str, 'your-default-access-key'),
+    AWS_SECRET_ACCESS_KEY=(str, 'your-default-secret-access-key'),
+    AWS_STORAGE_BUCKET_NAME=(str, 'your-default-bucket-name'),
 )
 
-# .env 파일 읽기
-environ.Env.read_env(env_file="/Users/mac/Desktop/oz-tennis-project/.env")
+
+# .env 파일 동적으로 찾기
+env_file_path = BASE_DIR / '.env'
+if os.path.isfile(env_file_path):
+    env.read_env(str(env_file_path))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY='tennis_project_team7'
-DEBUG=True
-
+SECRET_KEY = env('SECRET_KEY')
+DEBUG = env('DEBUG')
 
 
 ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
 
 
+
+# # AWS settings
+# AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+# AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+# AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+# AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
+
 # Application definition
 
 CUSTOM_APPS = [
-    
     'users.apps.UsersConfig',
     'team.apps.TeamConfig',
     'club.apps.ClubConfig',
     'tier.apps.TierConfig',
     'image_url.apps.ImageUrlConfig',
     'matchtype.apps.MatchTypeConfig',
-    'core.apps.CoreConfig',
-    
 ]
+
 
 SYSTEM_APPS = [
     'corsheaders',
+    'core.apps.CoreConfig',
+    'coach.apps.CoachConfig',
+    'competition.apps.CompetitionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -55,7 +75,6 @@ SYSTEM_APPS = [
 INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
 
 MIDDLEWARE = [
-    'django.middleware.common.CommonMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -194,3 +213,4 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
