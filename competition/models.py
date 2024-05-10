@@ -1,7 +1,8 @@
 from django.db import models
+from core.models import TimeStampedModel, SoftDeleteModel
 
 
-class Competition(models.Model):
+class Competition(TimeStampedModel, SoftDeleteModel):
     id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=30, blank=True, null=True)
     status = models.CharField(max_length=6, blank=True, null=True)

@@ -20,10 +20,6 @@ class ImageUploadView(APIView):
             temp_file = temp_storage.save(image_file.name, image_file)
             temp_file_path = temp_storage.path(temp_file)
 
-            # # 여기에서 파일 검증 로직을 추가함. 예: 파일 크기 검증 (안쓸예정~~)
-            # if not self.is_valid_image(temp_file_path):
-            #     return Response({"error": "Invalid image file"}, status=400)
-
             # 검증 후 S3에 업로드
             image_url, extension, file_size = S3ImageUploader.upload_image_to_s3(image_file)
             image_record = ImageUrl.objects.create(image_url=image_url, extension=extension, size=file_size)
