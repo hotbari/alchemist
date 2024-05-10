@@ -14,9 +14,9 @@ env = environ.Env(
     # 캐스팅 및 기본값 설정
     DEBUG=(bool, True),
     SECRET_KEY=(str, 'your-default-secret-key'),  # 기본값 예시
-    AWS_ACCESS_KEY_ID=(str, 'your-default-access-key'),
-    AWS_SECRET_ACCESS_KEY=(str, 'your-default-secret-access-key'),
-    AWS_STORAGE_BUCKET_NAME=(str, 'your-default-bucket-name'),
+    # AWS_ACCESS_KEY_ID=(str, 'your-default-access-key'),
+    # AWS_SECRET_ACCESS_KEY=(str, 'your-default-secret-access-key'),
+    # AWS_STORAGE_BUCKET_NAME=(str, 'your-default-bucket-name'),
 )
 
 
@@ -35,12 +35,12 @@ ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
 
 
 
-# # AWS settings
-# AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
-# AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-# AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# AWS settings
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
 
@@ -48,6 +48,8 @@ ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
 
 CUSTOM_APPS = [
     'users.apps.UsersConfig',
+    'core.apps.CoreConfig',
+    'coach.apps.CoachConfig',
     'team.apps.TeamConfig',
     'club.apps.ClubConfig',
     'tier.apps.TierConfig',
@@ -58,8 +60,6 @@ CUSTOM_APPS = [
 
 SYSTEM_APPS = [
     'corsheaders',
-    'core.apps.CoreConfig',
-    'coach.apps.CoachConfig',
     'competition.apps.CompetitionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -67,6 +67,7 @@ SYSTEM_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'djangorestframework_camel_case',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -75,6 +76,7 @@ SYSTEM_APPS = [
 INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # <- 가능한 높게 위치시켜야 한다.
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -82,7 +84,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware', # <- 가능한 높게 위치시켜야 한다.
+    'djangorestframework_camel_case.middleware.CamelCaseMiddleWare',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -171,7 +173,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+     'DEFAULT_PARSER_CLASSES': (
+        'djangorestframework_camel_case.parser.CamelCaseFormParser',
+        'djangorestframework_camel_case.parser.CamelCaseMultiPartParser',
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser', # 카멜 케이스 변환 파서
+    ),
     'DEFAULT_RENDERER_CLASSES': (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer', # 최상위로 올려야 카멜케이스로 변경 가능
+        'djangorestframework_camel_case.render.CamelCaseBrowsableAPIRenderer', # 최상위로 올려야 카멜케이스 변경 가능
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
@@ -214,3 +223,6 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://alchemistapi.watcher.team',
+]

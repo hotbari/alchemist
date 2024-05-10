@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from club.models import Club
 from team.models import Team
 from tier.models import Tier
-from core.models import TimeStampedModel
+from core.models import SoftDeleteModel , TimeStampedModel
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 # CustomUserManager 정의 (CustomUser모델을 사용하려면 필수적으로 필요한 매니저)
@@ -31,7 +31,7 @@ class CustomUserManager(BaseUserManager):
 
 
 # 사용자 정의 사용자 커스텀 모델
-class CustomUser(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
+class CustomUser(AbstractBaseUser, PermissionsMixin, SoftDeleteModel, TimeStampedModel):
     # 성별필드에 choices 구현
     GENDER_CHOICES = (
         ('male', '남성'),

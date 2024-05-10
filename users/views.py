@@ -13,10 +13,8 @@ from .serializers import CreateUserSerializer, CustomTokenObtainPairSerializer
 
 
 # 회원가입 view ##
-
-
 class CreateUserView(APIView):
-    parser_classes = (MultiPartParser, FormParser)  # 멀티파트 데이터를 처리할 수 있도록 파서 클래스 추가
+    # parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
         serializer = CreateUserSerializer(data=request.data)  # request.data를 직접 사용
@@ -31,7 +29,6 @@ class CreateUserView(APIView):
             
             # 생성된 리프레시 토큰을 쿠키에 설정
             response.set_cookie('refresh',value=str(token), httponly= True)
-            
             return response
 
         return Response({
@@ -58,7 +55,7 @@ class LoginView(TokenObtainPairView):
         
         response.set_cookie("refresh", res.data.get('refresh', None), httponly= True)
         
-        return response     
+        return response
     
     
      

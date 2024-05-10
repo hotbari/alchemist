@@ -1,8 +1,7 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model , authenticate
-from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from .models import Club
+from .models import CustomUser, Club
 from image_url.models import ImageUrl
 from image_url.utils import S3ImageUploader
 
@@ -90,20 +89,4 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         
         
         return data
-    
-        # # 사용자 정보를 JSON 형태로 추가
-        # user_info = {
-        #     'id': self.user.id,
-        #     'phone': self.user.phone,
-        #     'username': self.user.username,
-        #     'image_url': self.user.image_url.url if self.user.image_url else None,
-        # }
-        
-        # # user가 클럽이 존재한다면 클럽 정보도 추가.
-        # if hasattr(self.user, 'club') and self.user.club:
-        #     user_info['club'] = {
-        #         'id': self.user.club.id,
-        #         'name': self.user.club.name
-        #     }
-        
-        # data['user'] = user_info  # user_id(PK) 에 사용자 데이터를 추가했음.
+

@@ -1,7 +1,7 @@
 from django.db import models
-from core.models import TimeStampedModel
+from core.models import TimeStampedModel, SoftDeleteModel
 
-class Club(TimeStampedModel):
+class Club(TimeStampedModel, SoftDeleteModel):
     id = models.IntegerField(primary_key=True)
     address = models.CharField(max_length=100, blank=True, null=True)
     phone = models.CharField(max_length=30, blank=True, null=True)
