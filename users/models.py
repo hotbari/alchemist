@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from club.models import Club
 from team.models import Team
 from tier.models import Tier
+from image_url.models import ImageUrl
 from core.models import SoftDeleteModel , TimeStampedModel
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -51,7 +52,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, SoftDeleteModel, TimeStampe
     tier = models.ForeignKey(Tier, on_delete=models.DO_NOTHING, blank=True, null=True)
     is_staff = models.BooleanField(default=False) # 관리자 페이지 접속 가능하게 하는 staff 기능
     is_active = models.BooleanField(default=True) # is_active 활용하여, 계정을 비활성화 가능 (유저 삭제 대신 False)
-    image_url = models.ForeignKey('image_url.ImageUrl', on_delete=models.DO_NOTHING, blank=True, null=True)
+    image_url = models.ForeignKey(ImageUrl, on_delete=models.DO_NOTHING, blank=True, null=True)
     objects = CustomUserManager()
     
     

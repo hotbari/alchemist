@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CreateUserSerializer, CustomTokenObtainPairSerializer
+from .serializers import CreateUserSerializer, CustomTokenObtainPairSerializer, UserInfoSerializer
+from .models import CustomUser
+
 
 
 
@@ -101,3 +102,18 @@ class RefreshAccessTokenView(APIView):
             return response
         except Exception as e:
             return Response({"error": "인증되지 않은 리프레시 토큰입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        
+        
+        
+
+class UserDetailView(APIView):
+    """
+    유저 상세 정보를 제공하는 API
+    """
+
+    def get(self, request, pk):
+        user = CustomUser.objects.get(pk=pk)
+        serializer = UserInfoSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

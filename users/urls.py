@@ -1,7 +1,6 @@
-from django.contrib import admin
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
-from users.views import CreateUserView, LoginView, RefreshAccessTokenView, LogoutView
+from .views import CreateUserView, LoginView, RefreshAccessTokenView, LogoutView, UserDetailView
 
 
 urlpatterns = [
@@ -10,4 +9,5 @@ urlpatterns = [
     path('auth/signup/', CreateUserView.as_view(), name='signup'), # 회원가입 api
     path('auth/signin/', LoginView.as_view(), name='login'), # 로그인 api
     path('auth/logout/', LogoutView.as_view(), name='logout'),
+     path('user/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
 ]

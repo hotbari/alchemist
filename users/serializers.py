@@ -4,6 +4,9 @@ from rest_framework import serializers
 from .models import CustomUser, Club
 from image_url.models import ImageUrl
 from image_url.utils import S3ImageUploader
+from image_url.serializers import ImageUrlSerializer
+from club.serializers import ClubDetailSerializer
+from team.serializers import TeamDetailSerializer
 
 
 User = get_user_model()
@@ -15,7 +18,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     club = serializers.PrimaryKeyRelatedField(queryset=Club.objects.all(), required=False)
     image_file = serializers.ImageField(write_only=True, required=False)  # 이미지 파일을 받기 위해 이미지 모델에 있는 임시 보관소 필드
-    image_url = serializers.URLField(read_only=True, allow_blank=True, default=None)
+    image_url = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = User
@@ -54,6 +57,13 @@ class CreateUserSerializer(serializers.ModelSerializer):
             user.save()
         
         return user
+    
+    
+    def get_image_url(self, obj):
+        # User 모델의 image_url이 None이 아닐 경우, 해당 ImageUrl 인스턴스의 URL을 반환
+        if obj.image_url:
+            return obj.image_url.image_url
+        return None
 
 
 # 로그인 부분 serializer ##
@@ -90,3 +100,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         
         return data
 
+
+
+# 유저 상세정보 serializer
+class UserInfoSerializer(serializers.ModelSerializer):
+    image_url = ImageUrlSerializer(read_only=True)  # ImageUrl 모델에 대한 시리얼라이저를 사용
+    club = ClubDetailSerializer(read_only=True)
+    team = TeamDetailSerializer(read_only=True)
+    
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'phone', 'gender', 'birth', 'image_url', 'club', 'team'] # 티어 추가해야함
