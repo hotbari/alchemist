@@ -22,11 +22,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('phone', 'password', 'username', 'birth', 'gender', 'club', 'image_file', 'image_url')
         
-    def get_image_url(self, obj):
-        if hasattr(obj, 'image_url'):
-            return obj.image_url.image_url
-        return None
-
     def create(self, validated_data):
         image_data = validated_data.pop('image_file', None)
         user = User.objects.create_user(
@@ -38,7 +33,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
             club=validated_data.get('club', None)
         )
         
-        if image_data:
+        # image_data가 None이 아니고, 파일 크기가 0보다 큰 경우에만 이미지 업로드 실행
+        if image_data and hasattr(image_data, 'size') and image_data.size > 0:
             uploader = S3ImageUploader()
             file_url, extension, size = uploader.upload_file(image_data)
             
@@ -49,7 +45,8 @@ class CreateUserSerializer(serializers.ModelSerializer):
                 size=size
             )
             user.image_url = image_instance  # 사용자 인스턴스에 이미지 인스턴스 할당
-            user.save()  # 변경 사항 저장
+        user.save()  # 변경 사항 저장
+
             
         return user
 
