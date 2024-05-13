@@ -2,7 +2,7 @@ from django.db import models
 from core.models import TimeStampedModel
 
 class MatchType(TimeStampedModel):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     gender = models.CharField(max_length=6, blank=True, null=True)
     type = models.CharField(max_length=6, blank=True, null=True)
 

@@ -1,46 +1,34 @@
 
 from pathlib import Path
-import environ
 from datetime import timedelta
 import os
+from dotenv import load_dotenv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# environ 초기화
-env = environ.Env(
-    # 캐스팅 및 기본값 설정
-    DEBUG=(bool, True),
-    SECRET_KEY=(str, 'your-default-secret-key'),  # 기본값 예시
-    # AWS_ACCESS_KEY_ID=(str, 'your-default-access-key'),
-    # AWS_SECRET_ACCESS_KEY=(str, 'your-default-secret-access-key'),
-    # AWS_STORAGE_BUCKET_NAME=(str, 'your-default-bucket-name'),
-)
+# .env 파일 로드
+load_dotenv()
+
+# os.environ.get을 사용하여 환경변수에서 값을 읽음
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # 'True' 문자열을 비교하여 bool로 변환
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
+
+# AWS 설정
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
-# .env 파일 동적으로 찾기
-env_file_path = BASE_DIR / '.env'
-if os.path.isfile(env_file_path):
-    env.read_env(str(env_file_path))
-
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
-DEBUG = env('DEBUG')
+# 로컬 환경에서는 True로 설정하고, 서버 환경에서는 False로 설정합니다.
+IS_LOCAL = True
 
 
 ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
-
-
-
-# AWS settings
-AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
 
@@ -71,6 +59,7 @@ SYSTEM_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',
 ]
 
 INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
@@ -196,7 +185,6 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    'SIGNING_KEY': env('SIMPLE_JWT_SIGNING_KEY', default=None) or SECRET_KEY,
 }
 
 

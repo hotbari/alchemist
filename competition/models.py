@@ -3,7 +3,7 @@ from core.models import TimeStampedModel, SoftDeleteModel
 
 
 class Competition(TimeStampedModel, SoftDeleteModel):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, blank=True, null=True)
     status = models.CharField(max_length=6, blank=True, null=True)
     start_date = models.DateTimeField(db_column='startDate', blank=True, null=True)

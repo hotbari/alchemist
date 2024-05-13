@@ -1,24 +1,29 @@
-import os
 import boto3
-from uuid import uuid4
 from django.conf import settings
+from uuid import uuid4
 
 class S3ImageUploader:
-    """S3에 이미지를 업로드하는 클래스"""
-    
-    @staticmethod
-    def upload_image_to_s3(image_file):
-        """S3에 이미지 파일을 업로드하고 URL, 확장자, 크기를 반환"""
-        s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-        bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-        _, extension = os.path.splitext(image_file.name)
-        # 확장자 앞의 점(.)을 제거하여 순수 확장자만 반환하도록 수정
-        extension = extension.lstrip('.')
-        unique_file_name = f"{uuid4()}.{extension}"  # 파일명에 확장자 앞에 점(.) 추가
-        s3.upload_fileobj(image_file, bucket_name, unique_file_name)
+    def __init__(self, bucket_name=settings.AWS_STORAGE_BUCKET_NAME):
+        if settings.IS_LOCAL:
+            # 로컬 환경에서는 명시적으로 키를 사용하여 s3 클라이언트를 생성
+            self.s3 = boto3.client('s3',
+                                   aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                                   aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        else:
+            # 서버 환경에서는 IAM 역할을 사용하여 s3 클라이언트를 생성
+            self.s3 = boto3.client('s3')
+        self.bucket_name = bucket_name
 
-        image_url = f"https://{bucket_name}.s3.amazonaws.com/{unique_file_name}"
-        file_size = image_file.size  # 파일 크기 추출
-
-        return image_url, extension, file_size
+    def upload_file(self, file):
+        """
+        S3 버킷에 파일을 업로드하고 업로드된 파일의 URL을 반환
+        """
+        file_name = f"{uuid4()}.{file.name.split('.')[-1]}"
+        self.s3.upload_fileobj(
+            file,
+            self.bucket_name,
+            file_name
+        )
+        file_url = f"https://{self.bucket_name}.s3.amazonaws.com/{file_name}"
+        file_size_kb = int(file.size / 1024)
+        return file_url, file_name.split('.')[-1], file_size_kb

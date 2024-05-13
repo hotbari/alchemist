@@ -1,32 +1,26 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import ImageUrl
-from .serializers import ImageUrlSerializer
+from rest_framework import status
+from .serializers import ImageUploadSerializer
 from .utils import S3ImageUploader
-from django.core.files.storage import FileSystemStorage
 
-# 임시 파일 저장소를 위한 커스텀 스토리지 클래스
-class InMemoryUploadStorage(FileSystemStorage):
-    """데이터베이스에 저장되지 않는 임시 파일 저장소"""
-    def get_available_name(self, name, max_length=None):
-        return name
+
+
 
 class ImageUploadView(APIView):
     def post(self, request, *args, **kwargs):
-        image_file = request.FILES.get('image_file')
-        if image_file:
-            # 임시 저장소에 파일 저장
-            temp_storage = InMemoryUploadStorage()
-            temp_file = temp_storage.save(image_file.name, image_file)
-            temp_file_path = temp_storage.path(temp_file)
+        serializer = ImageUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            image_file = request.FILES.get('image_url')
+            if image_file:
+                # S3Uploader 클래스의 인스턴스를 생성
+                uploader = S3ImageUploader()
 
-            # 검증 후 S3에 업로드
-            image_url, extension, file_size = S3ImageUploader.upload_image_to_s3(image_file)
-            image_record = ImageUrl.objects.create(image_url=image_url, extension=extension, size=file_size)
-            serializer = ImageUrlSerializer(image_record)
-
-            # 임시 파일 삭제
-            temp_storage.delete(temp_file)
-
-            return Response(serializer.data, status=201)
-        return Response({"error": "No image file provided"}, status=400)
+                # 해당 인스턴스를 사용하여 파일 업로드
+                file_url, extension, size = uploader.upload_file(image_file)
+                
+                # S3로부터 받은 URL, 확장자, 파일 크기 정보 업데이트
+                serializer.save(image_url=file_url, extension=extension, size=size)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"error": "No image file provided"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
