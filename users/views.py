@@ -5,6 +5,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CreateUserSerializer, CustomTokenObtainPairSerializer, UserInfoSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import CustomUser
 
 
@@ -104,15 +106,34 @@ class RefreshAccessTokenView(APIView):
         
         
         
-        
-        
-
 class UserDetailView(APIView):
     """
     유저 상세 정보를 제공하는 API
     """
 
     def get(self, request, pk):
-        user = CustomUser.objects.get(pk=pk)
+        try:
+            user = CustomUser.objects.get(pk=pk)
+        except CustomUser.DoesNotExist:
+            return Response({'error': '해당 유저가 존재하지 않습니다.'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserInfoSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)      
+        
+
+
+
+class MyProfileView(APIView):
+    """
+    자신 프로필 정보를 제공하는 API
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response({"detail": "로그인이 필요합니다."}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # request.user에는 JWT 토큰을 통해 인증된 사용자의 인스턴스가 포함되어 있습니다.
+        user = request.user
         serializer = UserInfoSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
