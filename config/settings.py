@@ -24,6 +24,8 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
+# 로컬 환경에서는 True로 설정하고, 서버 환경에서는 False로 설정합니다.
+IS_LOCAL = True
 
 
 ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
@@ -57,6 +59,7 @@ SYSTEM_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
+    'drf_yasg',
 ]
 
 INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
