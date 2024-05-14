@@ -7,7 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CreateUserSerializer, CustomTokenObtainPairSerializer, UserInfoSerializer, UpdateUserSerializer 
+from .serializers import CreateUserSerializer, CustomTokenObtainPairSerializer, UserInfoSerializer, UpdateMyProfileSerializer 
 from .models import CustomUser
 
 
@@ -107,33 +107,28 @@ class RefreshAccessTokenView(APIView):
         
         
         
-        
-        
-        
+            
 
-class UpdateUserAPIView(APIView):
+class UpdateMyProfileAPIView(APIView):
     """
-    사용자 정보를 업데이트하는 API 뷰입니다.
+     내 프로필을 업데이트하는 API 뷰입니다.
     """
-    def get_object(self, pk):
-        try:
-            return CustomUser.objects.get(pk=pk)
-        except CustomUser.DoesNotExist:
-            raise Http404
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
-    def put(self, request, pk, format=None):
+    def put(self, request, format=None):
         """
         PUT 요청을 통해 사용자 정보를 부분적으로 업데이트합니다.
         """
-        user = self.get_object(pk)
-        # 기존 데이터를 기반으로 serializer를 생성합니다.
-        serializer = UpdateUserSerializer(user, data=request.data, partial=True) # 여기에 partial=True를 추가합니다.
+        user = request.user  # Use the currently authenticated user's information.
+        serializer = UpdateMyProfileSerializer(user, data=request.data, partial=True)  # 여기에 partial=True를 추가합니다.
         if serializer.is_valid():
             serializer.save()
             # 업데이트가 성공적으로 완료되면, serializer의 데이터와 함께 200 OK 응답을 반환합니다.
             return Response(serializer.data, status=status.HTTP_200_OK)
         # 유효성 검사에 실패한 경우, 오류 메시지와 함께 400 Bad Request 응답을 반환합니다.
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
         
@@ -156,7 +151,7 @@ class UserDetailView(APIView):
 
 class MyProfileView(APIView):
     """
-    자신 프로필 정보를 제공하는 API
+    내 프로필 정보를 제공하는 API
     """
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]

@@ -1,6 +1,14 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
-from .views import CreateUserView, LoginView, RefreshAccessTokenView, LogoutView, MyProfileView, UserDetailView
+from .views import(
+                    CreateUserView,
+                    LoginView,
+                    RefreshAccessTokenView,
+                    LogoutView,
+                    MyProfileView,
+                    UserDetailView,
+                    UpdateMyProfileAPIView,
+)
 
 
 urlpatterns = [
@@ -11,5 +19,5 @@ urlpatterns = [
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('user/myprofile/', MyProfileView.as_view(), name='my-profile'), # 내 프로필 상세정보 조회
     path('user/<int:pk>/', UserDetailView.as_view(), name='user-detail'), # 특정 유저 상세정보 조회
-    
+    path('user/myprofile/update/', UpdateMyProfileAPIView.as_view(), name='update-my-profile'), # 내 프로필 업데이트 api   
 ]
