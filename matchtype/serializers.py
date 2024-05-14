@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from .models import MatchType
 
-class CompetitionDetailSerializer(serializers.ModelSerializer):
+class MatchTypeSerializer(serializers.ModelSerializer):
 
 
     class Meta:
         model = MatchType
-        fields = '__all__'
+        fields = ['gender', 'type']
