@@ -7,8 +7,10 @@ from .serializers import CompetitionListSerializer, CompetitionSerializer
 # from applicant.serializers import ApplicantSerializer
 
 
-"""대회 리스트"""
 class CompetitionListView(APIView):
+    """
+    대회 리스트
+    """
     def get(self, request):
         # 쿼리 파라미터로부터 gender와 type을 받아옵니다.
         gender = request.query_params.get('gender')
@@ -23,8 +25,10 @@ class CompetitionListView(APIView):
         return Response(serializer.data)
     
 
-"""대회 상세보기"""
 class CompetitionView(APIView):
+    """
+    대회 상세보기
+    """
     def get(self, request, pk):
         try:
             competition = Competition.objects.get(pk=pk)
