@@ -48,7 +48,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         user.save()  # 변경 사항 저장
 
             
-        return user
+        return user # zz
 
 
 # 로그인 부분 serializer ##
