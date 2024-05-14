@@ -5,7 +5,6 @@ from core.models import TimeStampedModel, SoftDeleteModel
 class Competition(TimeStampedModel, SoftDeleteModel):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, blank=True, null=True)
-    status = models.CharField(max_length=6, blank=True, null=True)
     start_date = models.DateTimeField(db_column='startDate', blank=True, null=True)
     end_date = models.DateTimeField(db_column='endDate', blank=True, null=True)  
     round = models.IntegerField(blank=True, null=True)
@@ -22,8 +21,15 @@ class Competition(TimeStampedModel, SoftDeleteModel):
     site_link = models.TextField(db_column='siteLink', blank=True, null=True)  
     feedback = models.CharField(max_length=255, blank=True, null=True)
     image_url = models.ForeignKey('image_url.ImageUrl', on_delete=models.DO_NOTHING, blank=True, null=True)
-    # match_type = models.ForeignKey('MatchType', models.DO_NOTHING)
+    match_type = models.ForeignKey('matchtype.MatchType', models.DO_NOTHING)
     # tier = models.ForeignKey('Tier', models.DO_NOTHING)
+    
+    
+    def __str__(self):
+        return self.name
 
     class Meta:
         db_table = 'competition'
+
+
+
