@@ -67,8 +67,8 @@ class ClubDetailView(APIView):
             coaches_users_ids = coaches.values_list('user', flat=True) 
             
 
-            # 클럽에 속한 유저 정보 가져오기 (코치로 등록된 유저 제외)
-            users = CustomUser.objects.filter(club=club).exclude(id__in=coaches_users_ids) # exclude 함수는 조건에 해당하는 객체는 제외시켜준다.
+            # 클럽에 속한 상위 3명 유저 정보 가져오기 (코치로 등록된 유저 제외)
+            users = CustomUser.objects.filter(club=club).exclude(id__in=coaches_users_ids).order_by('id')[:3] # 추후에 order_by('-score')[:3] 으로 변경
             user_serializer = UserWithTeamInfoSerializer(users, many=True)
 
             # 클럽 정보와 함께 코치, 팀, 유저 정보 포함하여 응답
@@ -82,3 +82,29 @@ class ClubDetailView(APIView):
             return Response(response_data)
         except Club.DoesNotExist:
             return Response({'error': '해당클럽이 존재하지 않습니다.'}, status=404)
+        
+        
+        
+
+        
+class ClubUsersListView(APIView):
+    """
+    클럽에 속한 유저 정보를 모두 나타내는 API
+    """
+    def get(self, request, pk):
+        try:
+            # 클럽 객체 가져오기
+            club = Club.objects.get(pk=pk)
+            
+            # 클럽에 속한 코치들의 유저 ID 목록 가져오기
+            coaches = Coach.objects.filter(club=club)
+            coaches_users_ids = coaches.values_list('user', flat=True)
+            
+            # 클럽에 속한 유저 정보 가져오기 (코치로 등록된 유저 제외)
+            users = CustomUser.objects.filter(club=club).exclude(id__in=coaches_users_ids).order_by('id')
+            user_serializer = UserWithTeamInfoSerializer(users, many=True)
+
+            # 유저 정보 포함하여 응답
+            return Response(user_serializer.data)
+        except Club.DoesNotExist:
+            return Response({'error': '해당 클럽이 존재하지 않습니다.'}, status=404)
