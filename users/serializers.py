@@ -89,7 +89,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 
 # 회원정보 수정 serializer
-class UpdateUserSerializer(serializers.ModelSerializer):
+class UpdateMyProfileSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     club = serializers.PrimaryKeyRelatedField(queryset=Club.objects.all(), required=False)
     image_file = serializers.ImageField(write_only=True, required=False)
@@ -156,5 +156,5 @@ class UserInfoSerializer(serializers.ModelSerializer):
     team = TeamDetailSerializer(read_only=True)
     
     class Meta:
-        model = CustomUser
+        model = User
         fields = ['id', 'username', 'phone', 'gender', 'birth', 'image_url', 'club', 'team'] # 티어 추가해야함
