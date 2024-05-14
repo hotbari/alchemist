@@ -11,7 +11,7 @@ class TeamDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'image_url']
     
         
-
+# *************** club serializer 에서 정의된 부분이기 때문에 중복 코드 방지를 위해 주석처리 진행 ********************************
 # class CustomUserSerializer(serializers.ModelSerializer):
 #     image_url = ImageUrlSerializer(read_only=True)
 #     team = serializers.SerializerMethodField()  # 사용자의 팀 정보를 커스텀하게 가져오기 위해 사용
