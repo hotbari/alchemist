@@ -121,7 +121,7 @@ class UpdateMyProfileAPIView(APIView):
         PUT 요청을 통해 사용자 정보를 부분적으로 업데이트합니다.
         """
         user = request.user  # Use the currently authenticated user's information.
-        serializer = UpdateMyProfileSerializer(user, data=request.data, partial=True)  # 여기에 partial=True를 추가합니다.
+        serializer = UpdateMyProfileSerializer(user, data=request.data, partial=True)  # 부분 업데이트를 위해 partial=True를 추가합니다.
         if serializer.is_valid():
             serializer.save()
             # 업데이트가 성공적으로 완료되면, serializer의 데이터와 함께 200 OK 응답을 반환합니다.
