@@ -1,6 +1,8 @@
 from django.db import models
 from core.models import TimeStampedModel, SoftDeleteModel
-
+from image_url.models import  ImageUrl
+from matchtype.models import MatchType
+from tier.models import Tier
 
 class Competition(TimeStampedModel, SoftDeleteModel):
     id = models.AutoField(primary_key=True)
@@ -20,9 +22,9 @@ class Competition(TimeStampedModel, SoftDeleteModel):
     bank_account_name = models.CharField(db_column='bankAccountName', max_length=30, blank=True, null=True)  
     site_link = models.TextField(db_column='siteLink', blank=True, null=True)  
     feedback = models.CharField(max_length=255, blank=True, null=True)
-    image_url = models.ForeignKey('image_url.ImageUrl', on_delete=models.DO_NOTHING, blank=True, null=True)
-    match_type = models.ForeignKey('matchtype.MatchType', models.DO_NOTHING)
-    # tier = models.ForeignKey('Tier', models.DO_NOTHING)
+    image_url = models.ForeignKey(ImageUrl, on_delete=models.DO_NOTHING, blank=True, null=True)
+    match_type = models.ForeignKey(MatchType, models.DO_NOTHING)
+    tier = models.ForeignKey(Tier, models.DO_NOTHING)
     
     
     def __str__(self):

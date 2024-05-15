@@ -1,4 +1,7 @@
 from django.contrib import admin
-from .models import MatchType
+from .models import Tier
 
-admin.site.register(MatchType)
+class TierAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'match_type')
+
+admin.site.register(Tier, TierAdmin)

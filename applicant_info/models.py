@@ -2,7 +2,7 @@ from django.db import models
 from core.models import TimeStampedModel, SoftDeleteModel
 from competition.models import Competition
 
-class Applicant(TimeStampedModel, SoftDeleteModel):
+class ApplicantInfo(TimeStampedModel, SoftDeleteModel):
     DEPOSIT_CHOICES = (
         ('un_paid', '입금 전'),
         ('paid', '입금확인'),

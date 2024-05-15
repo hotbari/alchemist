@@ -43,12 +43,13 @@ CUSTOM_APPS = [
     'tier.apps.TierConfig',
     'image_url.apps.ImageUrlConfig',
     'matchtype.apps.MatchTypeConfig',
+    'competition.apps.CompetitionConfig',
+    'applicant.apps.ApplicantConfig',
 ]
 
 
 SYSTEM_APPS = [
     'corsheaders',
-    'competition.apps.CompetitionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

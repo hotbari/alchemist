@@ -10,10 +10,11 @@ from image_url.serializers import ImageUrlSerializer
 class CompetitionListSerializer(serializers.ModelSerializer):
     match_type_details = MatchTypeSerializer(source='match_type', read_only=True)
     image_url = serializers.SerializerMethodField()
+    tier = serializers.SerializerMethodField()
 
     class Meta:
         model = Competition
-        fields = ['id', 'name', 'start_date', 'location','image_url', 'match_type_details']
+        fields = ['id', 'name', 'start_date', 'match_type_details', 'tier', 'location','image_url']
         
     
     def get_image_url(self, obj):
@@ -21,6 +22,10 @@ class CompetitionListSerializer(serializers.ModelSerializer):
             return obj.image_url.image_url
         return None
 
+    def get_tier(self, obj):
+        if obj.image_url:
+            return obj.tier.name
+        return None
 
 
 class CompetitionSerializer(serializers.ModelSerializer):
@@ -29,7 +34,7 @@ class CompetitionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Competition
-        fields = ['id', 'name', 'start_date', 'end_date', 'round', 'description', 'rule',
+        fields = ['id', 'name', 'start_date', 'end_date', 'tier', 'round', 'description', 'rule',
                   'address', 'location', 'code', 'phone', 'fee', 'bank_name',
                   'bank_account_number', 'bank_account_name', 'site_link', 'feedback',
                   'image_url', 'match_type_details']
