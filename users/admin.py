@@ -1,9 +1,8 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'phone', 'gender', 'birth', 'club', 'team')  # 실제 CustomUser 모델의 필드를 반영
+    list_display = ('id', 'username', 'phone', 'gender', 'birth', 'club', 'team', 'tier')  # 실제 CustomUser 모델의 필드를 반영
     ordering = ('phone',)  # 실제 CustomUser 모델의 USERNAME_FIELD를 사용
     
     def delete_queryset(self, request, queryset):

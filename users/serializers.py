@@ -118,10 +118,17 @@ class UpdateMyProfileSerializer(serializers.ModelSerializer):
             instance.set_password(password)
 
         # 빈 이미지 파일이 제공된 경우 (이미지 삭제 요청으로 간주)
-        if image_data in [None, '']:
+        if 'image_file' in validated_data and image_data == '':
             if hasattr(instance, 'image_url') and instance.image_url:
                 instance.image_url.delete()  # ImageUrl 인스턴스 삭제
                 instance.image_url = None  # User 모델의 참조 제거
+                
+        # 이미지 파일 정보가 제공되지 않은 경우 (이미지 변경 없음)
+        elif 'image_file' not in validated_data:
+            # 기존 image_url id를 가지고 있던 user와 가지고 있지 않던 user는 
+            # image_url id가 변경 되면 안됨.그대로 유지해야 하므로 바로 pass 처리
+            pass
+        
         # 유효한 이미지 파일이 제공된 경우
         elif image_data:
             uploader = S3ImageUploader()
@@ -143,6 +150,7 @@ class UpdateMyProfileSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
 
 
 
