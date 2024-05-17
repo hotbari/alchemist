@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from .models import Applicant
+from .models import ApplicantInfo
 
-class ApplicantSerializer(serializers.ModelSerializer):
+class ApplicantInfoSerializer(serializers.ModelSerializer):
 
 
     class Meta:
-        model = Applicant
+        model = ApplicantInfo
         fields = '__all__'

@@ -25,6 +25,9 @@ class Competition(TimeStampedModel, SoftDeleteModel):
     image_url = models.ForeignKey(ImageUrl, on_delete=models.DO_NOTHING, blank=True, null=True)
     match_type = models.ForeignKey(MatchType, models.DO_NOTHING)
     tier = models.ForeignKey(Tier, models.DO_NOTHING)
+    max_participants = models.IntegerField(default=0)
+    deposit_date = models.IntegerField(null=True, help_text="입금기한_신청기준 몇일")
+    
     
     
     def __str__(self):

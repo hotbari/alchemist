@@ -9,7 +9,12 @@ class ApplicantInfo(TimeStampedModel, SoftDeleteModel):
         ('canceled', '취소'),
     )
     id = models.AutoField(primary_key=True)
-    status = models.CharField(max_length=15, choices=DEPOSIT_CHOICES, null=True)
+    status = models.CharField(max_length=15, choices=DEPOSIT_CHOICES, default='un_paid')
     expired_date = models.DateTimeField(null=True)
     competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name='applicants')
-    is_waiting = models.BooleanField(default=False)     
+    is_waiting = models.BooleanField(default=False)   
+    
+    
+    
+    class Meta:
+        db_table = 'applicant_info'
