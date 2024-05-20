@@ -15,6 +15,8 @@ class ApplicantInfo(TimeStampedModel, SoftDeleteModel):
     is_waiting = models.BooleanField(default=False)   
     
     
-    
+    def __str__(self):
+        return f"{self.id} / {self.competition.name}"
+
     class Meta:
         db_table = 'applicant_info'
