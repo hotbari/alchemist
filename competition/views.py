@@ -66,20 +66,25 @@ class CompetitionApplyView(APIView):
         if not applicant.is_authenticated: # 유저 검증
             return Response({'error': '로그인되어 있지 않습니다.'}, status=status.HTTP_401_UNAUTHORIZED)
         
+        # 파트너 id 검증
         partner_id = request.data.get('partner_id')  #신청 폼에서 제공된 파트너의 ID
         partner = CustomUser.objects.get(id=partner_id) # 파트너 인스턴스 생성
+        if partner_id:
+            if CustomUser.DoesNotExist:
+                return Response({'error': '파트너를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+            
         
         # 자기 자신 선택 불가
-        if applicant.id == partner_id:
+        if applicant.id == partner.id:
             return Response({'error': '신청자를 파트너로 선택할 수 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        #신청자 중복 신청 확인
-        # if Applicant.objects.filter(applicant_info__competition=competition, user=applicant).exists():
-        #     return Response({'error': '해당 대회에 이미 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        # 신청자 중복 신청 확인
+        if Applicant.objects.filter(applicant_info__competition=competition, user=applicant).exists():
+            return Response({'error': '해당 대회에 이미 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # # 파트너 중복 신청 확인
-        # elif partner_id and Applicant.objects.filter(applicant_info__competition=competition, user_id=partner_id).exists():
-        #     return Response({'error': '선택하신 파트너는 이미 해당 대회를 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        # 파트너 중복 신청 확인
+        elif partner_id and Applicant.objects.filter(applicant_info__competition=competition, user_id=partner_id).exists():
+            return Response({'error': '선택하신 파트너는 이미 해당 대회를 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
         
         # 혼성 확인
         if competition.match_type.gender == 'mix' and applicant.gender == partner.gender:
@@ -87,13 +92,13 @@ class CompetitionApplyView(APIView):
         
         # 복식 신청
         if competition.match_type.type == 'duo':
-            try:
-                partner = CustomUser.objects.get(id=partner_id)
-            except CustomUser.DoesNotExist:
-                return Response({'error': '파트너를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+            return self.handle_doubles(request, competition, applicant, partner)
         
         # 단식 신청
-        return self.handle_singles(request, competition, applicant)
+        if competition.match_type.type == 'single':
+            return self.handle_singles(request, competition, applicant)
+        
+        return Response({'error': '대회신청 정상적으로 되지 않았습니다. 신청정보를 확인해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
         
     
     def handle_singles(self, request, competition, applicant):
