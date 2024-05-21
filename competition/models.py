@@ -26,6 +26,7 @@ class Competition(TimeStampedModel, SoftDeleteModel):
     bank_name = models.CharField(db_column='bankName', max_length=30, blank=True, null=True) 
     bank_account_number = models.IntegerField(db_column='bankAccountNumber', blank=True, null=True)  
     bank_account_name = models.CharField(db_column='bankAccountName', max_length=30, blank=True, null=True)  
+    deposit_refund_policy = models.TextField(max_length=1000, blank=True, null=True)
     site_link = models.TextField(db_column='siteLink', blank=True, null=True)  
     feedback = models.CharField(max_length=255, blank=True, null=True)
     image_url = models.ForeignKey(ImageUrl, on_delete=models.DO_NOTHING, blank=True, null=True)

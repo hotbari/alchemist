@@ -11,9 +11,10 @@ from users.models import CustomUser
 from matchtype.models import MatchType
 from applicant_info.models import ApplicantInfo
 from applicant.models import Applicant
-from .serializers import CompetitionListSerializer, CompetitionSerializer
+from .serializers import CompetitionListSerializer, CompetitionSerializer, CompetitionApplyInfoSerializer
 from applicant_info.serializers import ApplicantInfoSerializer
 from applicant.serializers import ApplicantSerializer
+
 
 
 class CompetitionListView(APIView):
@@ -50,8 +51,13 @@ class CompetitionView(APIView):
 
 
 
-# """ """
+
 class CompetitionApplyView(APIView):
+    """
+    대회 신청
+    """
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request, pk):
         
         try: # 대회 조회
@@ -63,53 +69,63 @@ class CompetitionApplyView(APIView):
         submitted_code = request.data.get('code')
         if submitted_code != competition.code:
             return Response({'error': '제출된 코드가 유효하지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
-        
         # 로그인 확인
         applicant = request.user # 신청자 = 로그인한 유저
         if not applicant.is_authenticated: # 유저 검증
             return Response({'error': '로그인되어 있지 않습니다.'}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        # 파트너 id 검증
-        partner_id = request.data.get('partner_id')  #신청 폼에서 제공된 파트너의 ID
-        partner = CustomUser.objects.get(id=partner_id) # 파트너 인스턴스 생성
-        if partner_id:
-            if CustomUser.DoesNotExist:
-                return Response({'error': '파트너를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
-            
-        
-        # 자기 자신 선택 불가
-        if applicant.id == partner.id:
-            return Response({'error': '신청자를 파트너로 선택할 수 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
-        
         # 신청자 중복 신청 확인
         if Applicant.objects.filter(applicant_info__competition=competition, user=applicant).exists():
             return Response({'error': '해당 대회에 이미 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+                        
         
-        # 파트너 중복 신청 확인
-        elif partner_id and Applicant.objects.filter(applicant_info__competition=competition, user_id=partner_id).exists():
-            return Response({'error': '선택하신 파트너는 이미 해당 대회를 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # 혼성 확인
-        if competition.match_type.gender == 'mix' and applicant.gender == partner.gender:
-            return Response({'error': '혼성 경기는 서로 다른 성별의 파트너가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # 복식 신청
-        if competition.match_type.type == 'duo':
-            return self.handle_doubles(request, competition, applicant, partner)
-        
-        # 단식 신청
+        ### 단식 신청
         if competition.match_type.type == 'single':
             return self.handle_singles(request, competition, applicant)
         
-        return Response({'error': '대회신청 정상적으로 되지 않았습니다. 신청정보를 확인해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        ### 복식 신청
+        if competition.match_type.type == 'duo':
+            # 파트너 생성
+            partner_id = request.data.get('partner_id')  #신청 폼에서 제공된 파트너의 ID
+            partner = CustomUser.objects.get(id=partner_id) # 파트너 인스턴스 생성
+            
+            # 혼성 확인
+            if competition.match_type.gender == 'mix' and applicant.gender == partner.gender:
+                return Response({'error': '혼성 경기는 서로 다른 성별의 파트너가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            # 파트너 성별 확인
+            elif partner.gender != competition.match_type.gender:
+                return Response({'error': '파트너 성별이 해당 대회에는 신청 불가능합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+            # 자기 자신 선택 불가
+            elif applicant.id == partner.id:
+                return Response({'error': '신청자 본인을 파트너로 선택할 수 없습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 파트너 티어 확인
+            elif partner.tier != competition.tier:
+                return Response({'error': '파트너 부가 달라 신청 불가능합니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            
+            # # 파트너 중복 신청 확인
+            # elif partner_id and Applicant.objects.filter(applicant_info__competition=competition, user_id=partner_id).exists():
+            #     return Response({'error': '선택하신 파트너는 이미 해당 대회를 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return self.handle_doubles(request, competition, applicant, partner)
+        
+        else:
+            return Response({'error': '대회신청 정상적으로 되지 않았습니다. 신청정보를 확인해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        
+        
         
     
     def handle_singles(self, request, competition, applicant):
         # 단식 신청 처리 로직
         current_applicants_count = ApplicantInfo.objects.filter(competition=competition).count()
         is_waiting = current_applicants_count >= competition.max_participants
-        application_status = '대기 신청' if is_waiting else '대회 신청'
-        
+                
         applicant_info_data = {
                     'competition': competition.id,
                     'is_waiting': is_waiting,
@@ -121,12 +137,25 @@ class CompetitionApplyView(APIView):
             applicant_info = serializer.save() 
         else:
                 return Response(ApplicantInfoSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        
+        expired_date = applicant_info_data['expired_date']
         applicant_data = {'user': applicant.id, 'applicant_info': applicant_info.id}
         applicant_serializer = ApplicantSerializer(data=applicant_data)
         if applicant_serializer.is_valid():
             applicant_serializer.save()
-            return Response({'message': '단식 경기 신청 완료.'}, status=status.HTTP_201_CREATED)
+            
+            competition_serializer = CompetitionApplyInfoSerializer(competition)
+            response_data = {
+                'status': '신청완료',
+                'applicant_info': {
+                    'applicant': applicant.username,
+                    'phone': applicant.phone
+                },
+                'competition_info': competition_serializer.data,
+                'expired_date': expired_date  
+            }
+            
+            return Response(response_data, status=status.HTTP_201_CREATED)
         else:
             return Response(applicant_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -150,20 +179,32 @@ class CompetitionApplyView(APIView):
             else:
                 return Response(ApplicantInfoSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
+            expired_date = applicant_info_data['expired_date']
+            saved_applicants = []
+            
             for user in [applicant, partner]:
                 applicant_data = {'user': user.id, 'applicant_info': applicant_info.id}
                 applicant_serializer = ApplicantSerializer(data=applicant_data)
                 if not applicant_serializer.is_valid():
                     return Response(applicant_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                applicant_serializer.save()
-                response_data = applicant_serializer.data
-                response_data.update({
-                    'application_amount': f"{current_applicants_count+1}팀",
-                    'payment_info': {  # 결제 정보 추가
-                        'bank_name': competition.bank_name,
-                        'bank_account_number': competition.bank_account_number,
-                        'bank_account_name': competition.bank_account_name,
-                        'fee': competition.fee
-                    }
-                })
+                saved_applicant = applicant_serializer.save()
+                saved_applicants.append(saved_applicant)
+                print(saved_applicant)
+            competition_serializer = CompetitionApplyInfoSerializer(competition)
+            response_data = {
+                'status': '신청 완료',
+                'applicant_info': {
+                    'first_appicant': {
+                        'appliant': saved_applicants[0].user.username,
+                        'phone': saved_applicants[0].user.phone
+                        },
+                    'second_appicant': {
+                        'appliant': saved_applicants[1].user.username,
+                        'phone': saved_applicants[1].user.phone
+                        }
+                    },
+                'competition_info': competition_serializer.data,
+                'expired_date': expired_date                    
+                }
+
         return Response(response_data, status=status.HTTP_201_CREATED)
