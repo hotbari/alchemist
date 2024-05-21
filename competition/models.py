@@ -5,7 +5,13 @@ from matchtype.models import MatchType
 from tier.models import Tier
 
 class Competition(TimeStampedModel, SoftDeleteModel):
+    STATUS_CHOICES = (
+        ('before', 'before'),
+        ('during', 'during'),
+        ('ended', 'ended'),
+    )
     id = models.AutoField(primary_key=True)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES)
     name = models.CharField(max_length=30, blank=True, null=True)
     start_date = models.DateTimeField(db_column='startDate', blank=True, null=True)
     end_date = models.DateTimeField(db_column='endDate', blank=True, null=True)  

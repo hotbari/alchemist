@@ -11,7 +11,7 @@ class ApplicantInfo(TimeStampedModel, SoftDeleteModel):
     id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=15, choices=DEPOSIT_CHOICES, default='un_paid')
     expired_date = models.DateTimeField(null=True)
-    competition = models.ForeignKey(Competition, on_delete=models.CASCADE)
+    competition = models.ForeignKey(Competition, on_delete=models.CASCADE, related_name='applicants')
     is_waiting = models.BooleanField(default=False)   
     
     

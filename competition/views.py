@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from datetime import timedelta
 from django.utils.timezone import now
@@ -19,6 +20,7 @@ class CompetitionListView(APIView):
     """
     대회 리스트
     """
+
     def get(self, request):
         # 쿼리 파라미터로부터 gender와 type을 받아옵니다.
         gender = request.query_params.get('gender')
@@ -29,7 +31,8 @@ class CompetitionListView(APIView):
         else:
             competitions = Competition.objects.all()
 
-        serializer = CompetitionListSerializer(competitions, many=True)
+        serializer = CompetitionListSerializer(competitions, many=True, context={'request': request})
+        
         return Response(serializer.data)
     
 
