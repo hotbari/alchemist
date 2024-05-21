@@ -234,7 +234,7 @@ class ChangePasswordView(APIView):
     def put(self, request, *args, **kwargs):
         user = request.user
         serializer = ChangePasswordSerializer(data=request.data)
-        print(request.data)
+        
      
         if serializer.is_valid():
             # 기존 비밀번호
@@ -245,8 +245,6 @@ class ChangePasswordView(APIView):
             user.set_password(serializer.validated_data['changed_password'])
             user.save()
             return Response({'message': '비밀번호가 변경되었습니다.'}, status=status.HTTP_200_OK)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
