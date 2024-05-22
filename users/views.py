@@ -103,7 +103,7 @@ class LoginView(TokenObtainPairView):
     """
     유저 로그인 API
     """
-    parser_classes = (parsers.MultiPartParser, parsers.FormParser)
+    parser_classes = (CamelCaseFormParser, CamelCaseMultiPartParser)
     @swagger_auto_schema(
         operation_summary='유저 로그인',
         operation_description='유저 로그인 API',
@@ -199,8 +199,9 @@ class UpdateMyProfileAPIView(APIView):
     )
 
     def put(self, request, format=None):
-        user = request.user  # Use the currently authenticated user's information.
+        user = request.user
         serializer = UpdateMyProfileSerializer(user, data=request.data, partial=True)  # 부분 업데이트를 위해 partial=True를 추가
+        print(request.data)
         if serializer.is_valid():
             serializer.save()
             # 업데이트가 성공적으로 완료되면, serializer의 데이터와 함께 200 OK 응답을 반환
@@ -220,7 +221,7 @@ class ChangePasswordView(APIView):
     """
     permission_classes = [IsAuthenticated]
     
-    parser_classes = (CamelCaseFormParser, CamelCaseMultiPartParser)
+    
     @swagger_auto_schema(
         operation_summary='유저 비밀번호 변경',
         operation_description='유저 비밀번호 변경 API',
