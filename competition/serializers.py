@@ -33,10 +33,12 @@ class CompetitionListSerializer(serializers.ModelSerializer):
     
     def get_status(self, obj):
         user = self.context['request'].user
+        print(user.gender)
         current_applicants_count = obj.applicants.count()
         is_waiting = current_applicants_count >= obj.max_participants
+        print(current_applicants_count, obj.max_participants)
         
-        if obj.status == 'before' and not user.is_authenticated or user.gender != obj.match_type.gender or user.tier != obj.tier:
+        if obj.status == 'before' and not user.is_authenticated or (user.gender != obj.match_type.gender and obj.match_type.gender != 'mix')  or user.tier != obj.tier:
             return '신청 불가능'
         elif obj.status == 'before' and user.is_authenticated and current_applicants_count >= obj.max_participants:
             return '대기 가능'
@@ -49,12 +51,14 @@ class CompetitionListSerializer(serializers.ModelSerializer):
         
     def get_waiting_count(self, obj):
         current_applicants_count = obj.applicants.count()
-        return current_applicants_count
+        if current_applicants_count - obj.max_participants < 0:
+            return 0
+        return current_applicants_count - obj.max_participants
 
 
 
-## 대회 상세조회
-class CompetitionSerializer(serializers.ModelSerializer):
+## 대회 상세정보
+class CompetitionDetailInfoSerializer(serializers.ModelSerializer):
     match_type_details = MatchTypeSerializer(source='match_type', read_only=True)
     image_url = serializers.SerializerMethodField()
     tier = serializers.SerializerMethodField()
@@ -64,8 +68,8 @@ class CompetitionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Competition
         fields = ['id', 'name', 'start_date', 'tier', 'match_type_details', 'round', 'location', 'address', 
-                  'description', 'rule', 'code', 'phone', 'site_link', 'feedback',
-                  'image_url', 'status', 'is_waiting', 'waiting_count']
+                  'description', 'rule', 'phone', 'site_link', 'feedback',
+                  'image_url', 'status', 'waiting_count']
     
     
     def get_image_url(self, obj):
@@ -80,10 +84,12 @@ class CompetitionSerializer(serializers.ModelSerializer):
     
     def get_status(self, obj):
         user = self.context['request'].user
+        print(user)
         current_applicants_count = obj.applicants.count()
         is_waiting = current_applicants_count >= obj.max_participants
+        print(current_applicants_count, obj.max_participants)
         
-        if obj.status == 'before' and not user.is_authenticated or user.gender != obj.match_type.gender or user.tier != obj.tier:
+        if obj.status == 'before' and not user.is_authenticated or (user.gender != obj.match_type.gender and obj.match_type.gender != 'mix')  or user.tier != obj.tier:
             return '신청 불가능'
         elif obj.status == 'before' and user.is_authenticated and current_applicants_count >= obj.max_participants:
             return '대기 가능'
@@ -94,10 +100,26 @@ class CompetitionSerializer(serializers.ModelSerializer):
         else:
             return '대회 종료'
         
+    def get_waiting_count(self, obj):
+        current_applicants_count = obj.applicants.count()
+        if current_applicants_count - obj.max_participants < 0:
+            return 0
+        return current_applicants_count - obj.max_participants
 
 
-## 대회신청 시리얼라이저 ##        
+
+## 대회 간단정보
 class CompetitionApplyInfoSerializer(serializers.ModelSerializer):
+    match_type_details = MatchTypeSerializer(source='match_type', read_only=True)
+    
+    class Meta:
+        model = Competition
+        fields = ['id', 'name', 'start_date', 'match_type_details', 'round', 'location', 'address', ]
+
+
+
+## 대회신청        
+class CompetitionApplySerializer(serializers.ModelSerializer):
     match_type_details = MatchTypeSerializer(source='match_type', read_only=True)
     tier = serializers.SerializerMethodField()
     
@@ -112,3 +134,13 @@ class CompetitionApplyInfoSerializer(serializers.ModelSerializer):
         if obj.tier:
             return obj.tier.name
         return None
+    
+
+
+## 대회 현황
+class CompetitionStatusSerializer(serializers.ModelSerializer):
+    match_type_details = MatchTypeSerializer(source='match_type', read_only=True)
+    
+    
+    class Meta:
+        fields = ['name', 'match_type_details', 'tier', ]

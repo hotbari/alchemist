@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db import transaction
 from datetime import timedelta
 from django.utils.timezone import now
@@ -11,17 +12,18 @@ from users.models import CustomUser
 from matchtype.models import MatchType
 from applicant_info.models import ApplicantInfo
 from applicant.models import Applicant
-from .serializers import CompetitionListSerializer, CompetitionSerializer, CompetitionApplyInfoSerializer
+from .serializers import CompetitionListSerializer, CompetitionDetailInfoSerializer, CompetitionApplyInfoSerializer, CompetitionApplySerializer
 from applicant_info.serializers import ApplicantInfoSerializer
 from applicant.serializers import ApplicantSerializer
 
-
+ 
 
 class CompetitionListView(APIView):
     """
     대회 리스트
     """
-
+    permission_classes = [AllowAny]
+    
     def get(self, request):
         # 쿼리 파라미터로부터 gender와 type을 받아옵니다.
         gender = request.query_params.get('gender')
@@ -37,20 +39,41 @@ class CompetitionListView(APIView):
         return Response(serializer.data)
     
 
-class CompetitionView(APIView):
+class CompetitionDetailView(APIView):
     """
     대회 상세보기
     """
+    permission_classes = [AllowAny]
+    
     def get(self, request, pk):
         try:
             competition = Competition.objects.get(pk=pk)
-            serializer = CompetitionSerializer(competition)
+            serializer = CompetitionDetailInfoSerializer(competition, context={'request': request})
             return Response(serializer.data)
         except Competition.DoesNotExist:
             return Response({'error': '대회를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-
+class CompetitionApplyInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, pk):
+        try:
+            competition = Competition.objects.get(pk=pk)
+            serializer = CompetitionApplyInfoSerializer(competition)
+            user = request.user
+            print(user)
+            response = {
+                'competition_info': serializer.data,
+                'user_info': {'username':user.username, 'phone': user.phone}
+                
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        except Competition.DoesNotExist:
+            return Response({'error': '대회를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
+    
+        
+    
+    
 
 class CompetitionApplyView(APIView):
     """
@@ -69,13 +92,11 @@ class CompetitionApplyView(APIView):
         submitted_code = request.data.get('code')
         if submitted_code != competition.code:
             return Response({'error': '제출된 코드가 유효하지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
-        # 로그인 확인
+        
         applicant = request.user # 신청자 = 로그인한 유저
-        if not applicant.is_authenticated: # 유저 검증
-            return Response({'error': '로그인되어 있지 않습니다.'}, status=status.HTTP_401_UNAUTHORIZED)
         # 신청자 중복 신청 확인
-        if Applicant.objects.filter(applicant_info__competition=competition, user=applicant).exists():
-            return Response({'error': '해당 대회에 이미 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        # if Applicant.objects.filter(applicant_info__competition=competition, user=applicant).exists():
+        #     return Response({'error': '해당 대회에 이미 신청하셨습니다.'}, status=status.HTTP_400_BAD_REQUEST)
                         
         
         
@@ -95,7 +116,7 @@ class CompetitionApplyView(APIView):
             if competition.match_type.gender == 'mix' and applicant.gender == partner.gender:
                 return Response({'error': '혼성 경기는 서로 다른 성별의 파트너가 필요합니다.'}, status=status.HTTP_400_BAD_REQUEST)
             # 파트너 성별 확인
-            elif partner.gender != competition.match_type.gender:
+            elif partner.gender != competition.match_type.gender and competition.match_type.gender != 'mix':
                 return Response({'error': '파트너 성별이 해당 대회에는 신청 불가능합니다.'}, status=status.HTTP_400_BAD_REQUEST)
         
             # 자기 자신 선택 불가
@@ -121,8 +142,8 @@ class CompetitionApplyView(APIView):
         
         
     
+    ### 단식 신청 처리 로직
     def handle_singles(self, request, competition, applicant):
-        # 단식 신청 처리 로직
         current_applicants_count = ApplicantInfo.objects.filter(competition=competition).count()
         is_waiting = current_applicants_count >= competition.max_participants
                 
@@ -144,9 +165,11 @@ class CompetitionApplyView(APIView):
         if applicant_serializer.is_valid():
             applicant_serializer.save()
             
-            competition_serializer = CompetitionApplyInfoSerializer(competition)
+            is_waiting = applicant_info_data['is_waiting'] # 대기여부 확인
+            applicant_info_status = '대기신청 완료' if is_waiting else '신청 완료'
+            competition_serializer = CompetitionApplySerializer(competition)
             response_data = {
-                'status': '신청완료',
+                'status': f'{applicant_info_status}',
                 'applicant_info': {
                     'applicant': applicant.username,
                     'phone': applicant.phone
@@ -160,8 +183,9 @@ class CompetitionApplyView(APIView):
             return Response(applicant_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
+    
+    ### 복식 신청 처리 로직
     def handle_doubles(self, request, competition, applicant, partner):
-        # 복식 신청 처리 로직
         with transaction.atomic(): # 2개 신청 동시 처리
             
             # 해당 대회 신청된 참가정보 확인 후 대기여부 판별
@@ -189,10 +213,12 @@ class CompetitionApplyView(APIView):
                     return Response(applicant_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
                 saved_applicant = applicant_serializer.save()
                 saved_applicants.append(saved_applicant)
-                print(saved_applicant)
-            competition_serializer = CompetitionApplyInfoSerializer(competition)
+                
+            is_waiting = applicant_info_data['is_waiting'] # 대기여부 확인
+            applicant_info_status = '대기신청 완료' if is_waiting else '신청 완료'
+            competition_serializer = CompetitionApplySerializer(competition)
             response_data = {
-                'status': '신청 완료',
+                'status': f'{applicant_info_status}',
                 'applicant_info': {
                     'first_appicant': {
                         'appliant': saved_applicants[0].user.username,
