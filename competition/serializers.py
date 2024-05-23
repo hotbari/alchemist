@@ -114,7 +114,7 @@ class CompetitionApplyInfoSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Competition
-        fields = ['id', 'name', 'start_date', 'match_type_details', 'round', 'location', 'address', ]
+        fields = ['id', 'name', 'start_date', 'match_type_details', 'round', 'location', 'address', 'code' ]
 
 
 
