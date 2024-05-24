@@ -46,6 +46,8 @@ CUSTOM_APPS = [
     'competition.apps.CompetitionConfig',
     'applicant.apps.ApplicantConfig',
     'applicant_info.apps.ApplicantInfoConfig',
+    'participant.apps.ParticipantConfig',
+    'participant_info.apps.ParticipantInfoConfig'
 ]
 
 

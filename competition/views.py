@@ -17,7 +17,7 @@ from applicant_info.serializers import ApplicantInfoSerializer
 from applicant.serializers import ApplicantSerializer
 
  
-
+ ## 대회 리스트
 class CompetitionListView(APIView):
     """
     대회 리스트
@@ -39,6 +39,7 @@ class CompetitionListView(APIView):
         return Response(serializer.data)
     
 
+## 대회 상세정보
 class CompetitionDetailView(APIView):
     """
     대회 상세보기
@@ -54,27 +55,7 @@ class CompetitionDetailView(APIView):
             return Response({'error': '대회를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class CompetitionApplyInfoView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request, pk):
-        try:
-            competition = Competition.objects.get(pk=pk)
-            serializer = CompetitionApplyInfoSerializer(competition)
-            user = request.user
-            print(user)
-            response = {
-                'competition_info': serializer.data,
-                'user_info': {'username':user.username, 'phone': user.phone}
-                
-            }
-            return Response(response, status=status.HTTP_200_OK)
-        except Competition.DoesNotExist:
-            return Response({'error': '대회를 찾을 수 없습니다.'}, status=status.HTTP_404_NOT_FOUND)
-    
-        
-    
-    
-
+## 대회신청
 class CompetitionApplyView(APIView):
     """
     대회 신청
