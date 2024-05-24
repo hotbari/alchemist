@@ -182,7 +182,7 @@ class RefreshAccessTokenView(APIView):
 
 class UpdateMyProfileAPIView(APIView):
     """
-    내 프로필을 업데이트하는 API
+     내 프로필을 업데이트하는 API
     """
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
