@@ -4,8 +4,8 @@ from rest_framework import serializers
 from .models import Club
 from image_url.models import ImageUrl
 from image_url.utils import S3ImageUploader
-from image_url.serializers import ImageUrlSerializer
 from club.serializers import ClubDetailSerializer
+from club_applicant.models import ClubApplicant
 from team.serializers import TeamDetailSerializer
 
 
@@ -27,18 +27,10 @@ class CreateUserSerializer(serializers.ModelSerializer):
         if not value.isdigit():
             raise serializers.ValidationError("휴대폰 번호는 숫자만 포함해야 합니다.")
         return value
-    
-        
-
-    def validate_phone(self, value):
-        # 숫자로만 구성되어 있는지 확인
-        if not value.isdigit():
-            raise serializers.ValidationError("휴대폰 번호는 숫자만 포함해야 합니다.")
-        return value
-    
         
 
     def create(self, validated_data):
+        club_data = validated_data.pop('club', None)
         image_data = validated_data.pop('image_file', None)
         user = User.objects.create_user(
             phone=validated_data['phone'],
@@ -46,9 +38,12 @@ class CreateUserSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             birth=validated_data.get('birth'),
             gender=validated_data.get('gender'),
-            club=validated_data.get('club', None)
         )
         
+        # 클럽 가입 신청 처리
+        if club_data:
+            ClubApplicant.objects.create(user=user, club=club_data)
+
         # image_data가 None이 아니고, 파일 크기가 0보다 큰 경우에만 이미지 업로드 실행
         if image_data and hasattr(image_data, 'size') and image_data.size > 0:
             uploader = S3ImageUploader()
@@ -65,29 +60,6 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
             
         return user
-    
-    
-    
-    
-# 휴대폰 번호 중복 체크 serializer
-
-class PhoneCheckSerializer(serializers.Serializer):
-    phone = serializers.CharField()
-    
-    def validate_phone(self, value):
-        # 숫자로만 구성되어 있는지 확인
-        if not value.isdigit():
-            raise serializers.ValidationError("휴대폰 번호는 숫자만 포함해야 합니다.")
-        
-        # 이미 사용 중인지 확인
-        if User.objects.filter(phone=value).exists():
-            raise serializers.ValidationError("이미 사용 중인 휴대폰 번호입니다.")
-        
-        return value
-
-
-
-
     
     
     
