@@ -88,9 +88,14 @@ class CompetitionApplyView(APIView):
         
         
         ### 복식 신청
-        if competition.match_type.type == 'duo':
+        if competition.match_type.type == 'double':
             # 파트너 생성
             partner_id = request.data.get('partner_id')  #신청 폼에서 제공된 파트너의 ID
+            
+            # 파트너 선택 확인
+            if not partner_id:
+                    return Response({'error': '파트너가 입력되지 않았습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            
             partner = CustomUser.objects.get(id=partner_id) # 파트너 인스턴스 생성
             
             # 혼성 확인
@@ -116,7 +121,7 @@ class CompetitionApplyView(APIView):
             return self.handle_doubles(request, competition, applicant, partner)
         
         else:
-            return Response({'error': '대회신청 정상적으로 되지 않았습니다. 신청정보를 확인해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': '대회신청이 정상적으로 되지 않았습니다. 신청정보를 확인해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
         
         
         
@@ -126,11 +131,17 @@ class CompetitionApplyView(APIView):
     ### 단식 신청 처리 로직
     def handle_singles(self, request, competition, applicant):
         current_applicants_count = ApplicantInfo.objects.filter(competition=competition).count()
-        is_waiting = current_applicants_count >= competition.max_participants
+        max_participants = competition.max_participants
+        waiting_number = None
+        
+        if current_applicants_count >= max_participants:
+            # 간단히 대기 번호를 계산
+            max_waiting_number = ApplicantInfo.objects.filter(competition=competition, waiting_number__isnull=False).count()
+            waiting_number = max_waiting_number + 1
                 
         applicant_info_data = {
                     'competition': competition.id,
-                    'is_waiting': is_waiting,
+                    'waiting_number': waiting_number,
                     'expired_date': now() + timedelta(days=competition.deposit_date)
             }
         
@@ -146,8 +157,7 @@ class CompetitionApplyView(APIView):
         if applicant_serializer.is_valid():
             applicant_serializer.save()
             
-            is_waiting = applicant_info_data['is_waiting'] # 대기여부 확인
-            applicant_info_status = '대기신청 완료' if is_waiting else '신청 완료'
+            applicant_info_status = '대기신청 완료' if waiting_number else '신청 완료'
             competition_serializer = CompetitionApplySerializer(competition)
             response_data = {
                 'status': f'{applicant_info_status}',
@@ -171,11 +181,17 @@ class CompetitionApplyView(APIView):
             
             # 해당 대회 신청된 참가정보 확인 후 대기여부 판별
             current_applicants_count = ApplicantInfo.objects.filter(competition=competition).count()
-            is_waiting = current_applicants_count >= competition.max_participants
+            max_participants = competition.max_participants
+            waiting_number = None
+            
+            if current_applicants_count >= max_participants:
+                # 간단히 대기 번호를 계산
+                max_waiting_number = ApplicantInfo.objects.filter(competition=competition, waiting_number__isnull=False).count()
+                waiting_number = max_waiting_number + 1
             
             applicant_info_data = {
                     'competition': competition.id,
-                    'is_waiting': is_waiting,
+                    'waiting_number': waiting_number,
                     'expired_date': now() + timedelta(days=competition.deposit_date)
             }
             serializer = ApplicantInfoSerializer(data=applicant_info_data)
@@ -195,8 +211,7 @@ class CompetitionApplyView(APIView):
                 saved_applicant = applicant_serializer.save()
                 saved_applicants.append(saved_applicant)
                 
-            is_waiting = applicant_info_data['is_waiting'] # 대기여부 확인
-            applicant_info_status = '대기신청 완료' if is_waiting else '신청 완료'
+            applicant_info_status = '대기신청 완료' if waiting_number else '신청 완료'
             competition_serializer = CompetitionApplySerializer(competition)
             response_data = {
                 'status': f'{applicant_info_status}',
