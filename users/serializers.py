@@ -178,6 +178,7 @@ class UpdateMyProfileSerializer(serializers.ModelSerializer):
             except Club.DoesNotExist:
                 raise serializers.ValidationError('해당 클럽이 존재하지 않습니다')
 
+
         # 이미지 파일 처리    
         if remove_image: # 클라이언트가 이미지 제거를 요청한 경우
             instance.image_url = None
