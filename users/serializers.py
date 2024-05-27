@@ -56,6 +56,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
                 size=size
             )
             user.image_url = image_instance  # 사용자 인스턴스에 이미지 인스턴스 할당
+            
         user.save()  # 변경 사항 저장
 
             
