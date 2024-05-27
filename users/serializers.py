@@ -150,15 +150,33 @@ class UpdateMyProfileSerializer(serializers.ModelSerializer):
 
         # 클럽 ID 처리
         club_data = validated_data.pop('club', None)
-        if club_data in ['']:  # 빈 문자열 인 경우
+        
+        # 빈 문자열 - 프로필 편집에서 유저가 기존 클럽을 삭제한 경우 (유저의 클럽id를 Null으로 변경)
+        if club_data in ['']:  
             instance.club = None
+        
+        # request 폼데이터에 클럽 데이터가 제공되지 않은 경우 (기존 클럽 유지)
+        elif club_data is None: 
+            pass
+            
         else:
-            # club 필드를 다시 Club 객체로 변환해야 할 경우
             try:
+                # 클럽을 변경 신청한 경우
                 club_instance = Club.objects.get(id=club_data)
-                instance.club = club_instance
-            except Club.DoesNotExist:
+                
+                # 기존에 유저가 가지고 있던 클럽id를 null값으로 변경
                 instance.club = None
+                
+                # 기존에 유저가 가지고 있던 팀id를 null값으로 변경
+                instance.team = None
+                
+                instance.save()
+                
+                # 새로운 클럽에 가입 신청
+                ClubApplicant.objects.create(user=instance, club=club_instance)
+                
+            except Club.DoesNotExist:
+                raise serializers.ValidationError('해당 클럽이 존재하지 않습니다')
 
         # 이미지 파일 처리    
         if remove_image: # 클라이언트가 이미지 제거를 요청한 경우
