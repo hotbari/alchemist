@@ -13,7 +13,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # os.environ.get을 사용하여 환경변수에서 값을 읽음
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # 'True' 문자열을 비교하여 bool로 변환
+DEBUG = True
+#DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # 'True' 문자열을 비교하여 bool로 변환
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
 
 # AWS 설정

@@ -43,7 +43,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, SoftDeleteModel, TimeStampe
             MaxValueValidator(2050, message="Birth year must be 2050 or earlier") # 필드의 값이 설정된 최대값 이하
         ])
     username = models.CharField(max_length=255) 
-    phone = models.CharField(max_length=10, unique=True)
+    phone = models.CharField(max_length=11, unique=True)
     auth = models.CharField(max_length=255, blank=True, null=True)
 
     # relationships
