@@ -3,7 +3,7 @@ from core.models import TimeStampedModel
 
 
 class ImageUrl(TimeStampedModel):
-    id = models.AutoField(primary_key=True)
+    # id = models.AutoField(primary_key=True)
     image_url = models.CharField(max_length=1024, blank=True, null=True)
     extension = models.CharField(max_length=10, blank=True, null=True)
     size = models.IntegerField(null=True, blank=True)

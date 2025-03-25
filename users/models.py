@@ -30,13 +30,14 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(phone, password, **extra_fields)
 
 
+from core.choices import Gender
 
 # 사용자 정의 사용자 커스텀 모델
 class CustomUser(AbstractBaseUser, PermissionsMixin, SoftDeleteModel, TimeStampedModel):
-    class Gender(models.TextChoices):
-        MALE = 'male', '남성'
-        FEMAIL = 'female', '여성'
-    gender = models.CharField(max_length=10, choices=Gender.choices)
+    gender = models.CharField(max_length=6,
+                              choices=Gender.choices,
+                              blank=True,
+                              null=True)
     birth = models.IntegerField(
         validators=[
             MinValueValidator(1900, message="Birth year must be 1900 or later"), # 필드의 값이 설정된 최소값 이상

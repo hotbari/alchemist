@@ -2,7 +2,7 @@ from django.db import models
 from core.models import TimeStampedModel, SoftDeleteModel
 
 class Club(TimeStampedModel, SoftDeleteModel):
-    id = models.AutoField(primary_key=True)
+    # id = models.AutoField(primary_key=True)
     address = models.CharField(max_length=100, blank=True, null=True)
     phone = models.CharField(max_length=30, blank=True, null=True)
     name = models.CharField(max_length=30, blank=True, null=True)
