@@ -1,8 +1,8 @@
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import CreateUserSerializer, CustomTokenObtainPairSerializer, UserInfoSerializer
 from .models import CustomUser
@@ -10,12 +10,10 @@ from .models import CustomUser
 
 
 
-
-
-
-# 회원가입 view ##
 class CreateUserView(APIView):
-
+    """
+    회원가입
+    """
     def post(self, request, *args, **kwargs):
         serializer = CreateUserSerializer(data=request.data)  # request.data를 직접 사용
         

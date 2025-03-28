@@ -36,20 +36,20 @@ ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
 # Application definition
 
 CUSTOM_APPS = [
-    'users.apps.UsersConfig',
-    'core.apps.CoreConfig',
-    'coach.apps.CoachConfig',
-    'team.apps.TeamConfig',
-    'club.apps.ClubConfig',
-    'tier.apps.TierConfig',
-    'image_url.apps.ImageUrlConfig',
-    'matchtype.apps.MatchTypeConfig',
+    'users',
+    'competition',
+    'core',
+    'coach',
+    'team',
+    'club',
+    'tier',
+    'image_url',
+    'match_type',
 ]
 
 
 SYSTEM_APPS = [
     'corsheaders',
-    'competition.apps.CompetitionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -63,7 +63,7 @@ SYSTEM_APPS = [
     'drf_yasg',
 ]
 
-INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
+INSTALLED_APPS = SYSTEM_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', # <- 가능한 높게 위치시켜야 한다.
