@@ -12,9 +12,9 @@
   curl -sSL https://install.python-poetry.org | python -
   ```
   - 설치완료 후 `poetry --version` 으로 설치된 poetry 확인
-  - poetry 가상환경 실행
+  - poetry 가상환경 실행 (3버전부터 poetry shell 명령어 삭제)
   ```bash
-  poetry shell
+  poetry env activate
   ```
   - poetry 가상환경 비활성화
   ```bash

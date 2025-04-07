@@ -13,7 +13,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 # os.environ.get을 사용하여 환경변수에서 값을 읽음
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # 'True' 문자열을 비교하여 bool로 변환
+DEBUG = True
+#DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # 'True' 문자열을 비교하여 bool로 변환
 SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
 
 # AWS 설정
@@ -35,20 +36,20 @@ ALLOWED_HOSTS = ['*'] # postman 테스트를 위해 *로 잠시 세팅
 # Application definition
 
 CUSTOM_APPS = [
-    'users.apps.UsersConfig',
-    'core.apps.CoreConfig',
-    'coach.apps.CoachConfig',
-    'team.apps.TeamConfig',
-    'club.apps.ClubConfig',
-    'tier.apps.TierConfig',
-    'image_url.apps.ImageUrlConfig',
-    'matchtype.apps.MatchTypeConfig',
+    'users',
+    'competition',
+    'core',
+    'coach',
+    'team',
+    'club',
+    'tier',
+    'image_url',
+    'match_type',
 ]
 
 
 SYSTEM_APPS = [
     'corsheaders',
-    'competition.apps.CompetitionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -62,7 +63,7 @@ SYSTEM_APPS = [
     'drf_yasg',
 ]
 
-INSTALLED_APPS = CUSTOM_APPS + SYSTEM_APPS
+INSTALLED_APPS = SYSTEM_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', # <- 가능한 높게 위치시켜야 한다.
