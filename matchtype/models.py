@@ -3,8 +3,8 @@ from core.models import TimeStampedModel
 
 class MatchType(TimeStampedModel):
     GENDER_CHOICES = (
-        ('male', '남자'),
-        ('female', '여자'),
+        ('male', '남성'),
+        ('female', '여성'),
         ('mix', '혼성'),
         ('team','팀'),
     )
@@ -21,5 +21,8 @@ class MatchType(TimeStampedModel):
     
     def __str__(self):
         return f"{self.gender}/{self.type}"       
+        
     class Meta:
         db_table = 'match_type'
+
+
